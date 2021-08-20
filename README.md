@@ -23,3 +23,9 @@ Dotaddict repository. (See Dotclear's documentation to know how do this)
 Enable and configure "Unmoderated authors" of "Reserved names" 
 from antispam manager.
 Note: User must write a comment before able to be added to the list.
+
+## MORE
+
+ * License : GNU GPL v2
+ * Source & contribution : [GitHub Page](https://github.com/JcDenis/whiteListCom)
+ * Packages & details:  [Dotaddict Page](https://plugins.dotaddict.org/dc2/details/whiteListCom)
