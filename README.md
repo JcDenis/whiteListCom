@@ -2,7 +2,7 @@
 
 ## WHAT IS WHITELISTCOM ?
 
-whiteListCom "White list for comments" is a plugin for the open-source 
+_whiteListCom_ "White list for comments" is a plugin for the open-source 
 web publishing software called Dotclear.
 
 Set up a list of users which can publish comments without validation 
@@ -10,14 +10,14 @@ and a list of reserved names (pair of nickname / email ).
 
 ## REQUIREMENTS
 
- whiteListCom requires: 
+_whiteListCom_ requires: 
 
-  * permissions to manage antispam
-  * Dotclear 2.6
+ * permissions to manage antispam
+ * Dotclear 2.6
 
 ## USAGE
 
-First install whiteListCom, manualy from a zip package or from 
+First install _whiteListCom_, manualy from a zip package or from 
 Dotaddict repository. (See Dotclear's documentation to know how do this)
 
 Enable and configure "Unmoderated authors" of "Reserved names" 

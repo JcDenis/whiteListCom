@@ -1,15 +1,15 @@
 <?php
-# -- BEGIN LICENSE BLOCK ----------------------------------
-#
-# This file is part of whiteListCom, a plugin for Dotclear 2.
-# 
-# Copyright (c) 2009-2021 Jean-Christian Denis and contributors
-# 
-# Licensed under the GPL version 2.0 license.
-# A copy of this license is available in LICENSE file or at
-# http://www.gnu.org/licenses/old-licenses/gpl-2.0.html
-#
-# -- END LICENSE BLOCK ------------------------------------
+/**
+ * @brief whiteListCom, a plugin for Dotclear 2
+ * 
+ * @package Dotclear
+ * @subpackage Plugin
+ * 
+ * @author Jean-Christian Denis and Contributors
+ * 
+ * @copyright Jean-Christian Denis
+ * @copyright GPL-2.0 https://www.gnu.org/licenses/gpl-2.0.html
+ */
 
 if (!defined('DC_RC_PATH')) {
     return null;
@@ -263,13 +263,13 @@ class whiteListCom
         $this->core = $core;
         $this->con = $core->con;
         $this->blog = $core->con->escape($core->blog->id);
-        
+
         $core->blog->settings->addNamespace('whiteListCom');
         $this->settings = $core->blog->settings->whiteListCom;
-        
+
         $unmoderated = $this->settings->whiteListCom_unmoderated;
         $this->unmoderated = self::decode($unmoderated);
-        
+
         $reserved = $this->settings->whiteListCom_reserved;
         $this->reserved = self::decode($reserved);
     }
@@ -283,7 +283,7 @@ class whiteListCom
             'Whitelist of unmoderated users on comments',
             true,false
         );
-        
+
         $this->settings->put(
             'whiteListCom_reserved',
             self::encode($this->reserved),

@@ -37,5 +37,3 @@ $GLOBALS['__l10n']['This name is reserved to an other user.'] = 'Ce nom est rés
 $GLOBALS['__l10n']['Whitelists for comments moderation'] = 'Listes blanches pour la modération de commentaires';
 
 $GLOBALS['__l10n']['Whitelist comments'] = 'Liste blanche des commentaires';
-
-?>
