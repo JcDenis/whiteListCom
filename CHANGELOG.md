@@ -1,6 +1,6 @@
-0.7.1 - dev
-- [ ] ?
-- [x] clean up code
+0.8 - 2021.09.10
+- clean up code
+- add dcstore file
 
 0.7 - 2021-08-19
 - fix PSR2 coding style
