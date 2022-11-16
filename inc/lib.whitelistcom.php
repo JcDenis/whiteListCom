@@ -1,16 +1,15 @@
 <?php
 /**
  * @brief whiteListCom, a plugin for Dotclear 2
- * 
+ *
  * @package Dotclear
  * @subpackage Plugin
- * 
+ *
  * @author Jean-Christian Denis and Contributors
- * 
+ *
  * @copyright Jean-Christian Denis
  * @copyright GPL-2.0 https://www.gnu.org/licenses/gpl-2.0.html
  */
-
 if (!defined('DC_RC_PATH')) {
     return null;
 }
@@ -24,68 +23,64 @@ if (!defined('DC_RC_PATH')) {
  */
 class whiteListComModeratedFilter extends dcSpamFilter
 {
-    public $name = 'Unmoderated authors';
+    public $name    = 'Unmoderated authors';
     public $has_gui = true;
 
     protected function setInfo()
     {
-        $this->name = __('Unmoderated authors');
+        $this->name        = __('Unmoderated authors');
         $this->description = __('Whitelist of unmoderated authors');
     }
 
     public function isSpam($type, $author, $email, $site, $ip, $content, $post_id, &$status)
     {
         if ($type != 'comment'
-         || $this->core->blog === null 
-         || $this->core->blog->settings->system->comments_pub) {
+         || dcCore::app()->blog === null
+         || dcCore::app()->blog->settings->system->comments_pub) {
             return null;
         }
 
         try {
-            $wlc = new whiteListCom($this->core);
+            $wlc = new whiteListCom();
             if ($wlc->isUnmoderated($email)) {
                 $status = 'unmoderated';
 
                 # return true in order to change comment_status after
-                return true; 
-            } else {
-
-                return null;
+                return true;
             }
-        } catch (Exception $e) {
 
+            return null;
+        } catch (Exception $e) {
         }
     }
 
-    public function gui($url)
+    public function gui(string $url): string
     {
         try {
-            $wlc = new whiteListCom($this->core);
+            $wlc = new whiteListCom();
 
             if (!empty($_POST['update_unmoderated'])) {
                 $wlc->emptyUnmoderated();
-                foreach($_POST['unmoderated'] as $email) {
+                foreach ($_POST['unmoderated'] as $email) {
                     $wlc->addUnmoderated($email);
                 }
                 $wlc->commit();
             }
-            $posts = $wlc->getPostsUsers();
+            $posts    = $wlc->getPostsUsers();
             $comments = $wlc->getCommentsUsers();
         } catch (Exception $e) {
-            $this->core->error->add($e->getMessage());
+            dcCore::app()->error->add($e->getMessage());
         }
 
         $res = '';
 
-        if ($this->core->blog->settings->system->comments_pub) {
-            $res .= 
-            '<p class="message">' .
+        if (dcCore::app()->blog->settings->system->comments_pub) {
+            $res .= '<p class="message">' .
             __('This filter is used only if comments are moderates') .
             '</p>';
         }
 
-        $res .=
-        '<form action="' . html::escapeURL($url) . '" method="post">' .
+        $res .= '<form action="' . html::escapeURL($url) . '" method="post">' .
         '<p>' . __('Check the users who can make comments without being moderated.') . '</p>' .
         '<div class="two-cols">' .
         '<div class="col">' .
@@ -94,12 +89,11 @@ class whiteListComModeratedFilter extends dcSpamFilter
         '<thead><tr><th>' . __('Name') . '</th><th>' . __('Email') . '</th></tr></thead>' .
         '<tbody>';
 
-        foreach($posts as $user) {
-            $res .=
-            '<tr class="line">' .
+        foreach ($posts as $user) {
+            $res .= '<tr class="line">' .
             '<td class="nowrap">' .
             form::checkbox(
-                array('unmoderated[]'), 
+                ['unmoderated[]'],
                 $user['email'],
                 $wlc->isUnmoderated($user['email'])
             ) .
@@ -108,8 +102,7 @@ class whiteListComModeratedFilter extends dcSpamFilter
             '</tr>';
         }
 
-        $res .=
-        '</tbody>' .
+        $res .= '</tbody>' .
         '</table>' .
         '</div>' .
         '<div class="col">' .
@@ -118,12 +111,11 @@ class whiteListComModeratedFilter extends dcSpamFilter
         '<thead><tr><th>' . __('Author') . '</th><th>' . __('Email') . '</th></tr></thead>' .
         '<tbody>';
 
-        foreach($comments as $user) {
-            $res .=
-            '<tr class="line">' .
+        foreach ($comments as $user) {
+            $res .= '<tr class="line">' .
             '<td class="nowrap">' .
             form::checkbox(
-                array('unmoderated[]'), 
+                ['unmoderated[]'],
                 $user['email'],
                 $wlc->isUnmoderated($user['email'])
             ) .
@@ -132,13 +124,12 @@ class whiteListComModeratedFilter extends dcSpamFilter
             '</tr>';
         }
 
-        $res .=
-        '</tbody>' .
+        $res .= '</tbody>' .
         '</table>' .
         '</div>' .
         '</div>' .
         '<p><input type="submit" name="update_unmoderated" value="' . __('Save') . '" />' .
-        $this->core->formNonce() . '</p>' .
+        dcCore::app()->formNonce() . '</p>' .
         '</form>';
 
         return $res;
@@ -152,12 +143,12 @@ class whiteListComModeratedFilter extends dcSpamFilter
  */
 class whiteListComReservedFilter extends dcSpamFilter
 {
-    public $name = 'Reserved names';
+    public $name    = 'Reserved names';
     public $has_gui = true;
 
     protected function setInfo()
     {
-        $this->name = __('Reserved names');
+        $this->name        = __('Reserved names');
         $this->description = __('Whitelist of reserved names of users');
     }
 
@@ -168,8 +159,9 @@ class whiteListComReservedFilter extends dcSpamFilter
         }
 
         $throw = false;
+
         try {
-            $wlc = new whiteListCom($this->core);
+            $wlc = new whiteListCom();
 
             if (true === $wlc->isReserved($author, $email)) {
                 $status = 'reserved name';
@@ -179,11 +171,10 @@ class whiteListComReservedFilter extends dcSpamFilter
                 return null;
             }
         } catch (Exception $e) {
-
         }
 
         # This message is show to author even if comments are moderated, comment is not saved
-        if($throw) {
+        if ($throw) {
             throw new Exception(__('This name is reserved to an other user.'));
         }
     }
@@ -193,37 +184,35 @@ class whiteListComReservedFilter extends dcSpamFilter
         return __('This name is reserved to an other user.');
     }
 
-    public function gui($url)
+    public function gui(string $url): string
     {
         try {
-            $wlc = new whiteListCom($this->core);
+            $wlc = new whiteListCom();
 
             if (!empty($_POST['update_reserved'])) {
                 $wlc->emptyReserved();
-                foreach($_POST['reserved'] as $email => $name) {
+                foreach ($_POST['reserved'] as $email => $name) {
                     $wlc->addReserved($name, $email);
                 }
                 $wlc->commit();
             }
             $comments = $wlc->getCommentsUsers();
         } catch (Exception $e) {
-            $this->core->error->add($e->getMessage());
+            dcCore::app()->error->add($e->getMessage());
         }
 
-        $res =
-        '<form action="' . html::escapeURL($url) . '" method="post">' .
+        $res = '<form action="' . html::escapeURL($url) . '" method="post">' .
         '<p>' . __('Check the users who can make comments without being moderated.') . '</p>' .
         '<p>' . __('Comments authors list') . '</p>' .
         '<table class="clear">' .
         '<thead><tr><th>' . __('Author') . '</th><th>' . __('Email') . '</th></tr></thead>' .
         '<tbody>';
 
-        foreach($comments as $user) {
-            $res .=
-            '<tr class="line">' .
+        foreach ($comments as $user) {
+            $res .= '<tr class="line">' .
             '<td class="nowrap">' .
             form::checkbox(
-                array('reserved[' . $user['email'] . ']'), 
+                ['reserved[' . $user['email'] . ']'],
                 $user['name'],
                 (null === $wlc->isReserved($user['name'], $user['email']))
             ) .
@@ -232,11 +221,10 @@ class whiteListComReservedFilter extends dcSpamFilter
             '</tr>';
         }
 
-        $res .=
-        '</tbody>' .
+        $res .= '</tbody>' .
         '</table>' .
         '<p><input type="submit" name="update_reserved" value="' . __('Save') . '" />' .
-        $this->core->formNonce() . '</p>' .
+        dcCore::app()->formNonce() . '</p>' .
         '</form>';
 
         return $res;
@@ -250,27 +238,25 @@ class whiteListComReservedFilter extends dcSpamFilter
  */
 class whiteListCom
 {
-    public $core;
     public $con;
     public $blog;
     public $settings;
 
-    private $unmoderated = array();
-    private $reserved = array();
+    private $unmoderated = [];
+    private $reserved    = [];
 
-    public function __construct($core)
+    public function __construct()
     {
-        $this->core = $core;
-        $this->con = $core->con;
-        $this->blog = $core->con->escape($core->blog->id);
+        $this->con  = dcCore::app()->con;
+        $this->blog = dcCore::app()->con->escape(dcCore::app()->blog->id);
 
-        $core->blog->settings->addNamespace('whiteListCom');
-        $this->settings = $core->blog->settings->whiteListCom;
+        dcCore::app()->blog->settings->addNamespace('whiteListCom');
+        $this->settings = dcCore::app()->blog->settings->whiteListCom;
 
-        $unmoderated = $this->settings->whiteListCom_unmoderated;
+        $unmoderated       = $this->settings->whiteListCom_unmoderated;
         $this->unmoderated = self::decode($unmoderated);
 
-        $reserved = $this->settings->whiteListCom_reserved;
+        $reserved       = $this->settings->whiteListCom_reserved;
         $this->reserved = self::decode($reserved);
     }
 
@@ -281,7 +267,8 @@ class whiteListCom
             self::encode($this->unmoderated),
             'string',
             'Whitelist of unmoderated users on comments',
-            true,false
+            true,
+            false
         );
 
         $this->settings->put(
@@ -289,11 +276,12 @@ class whiteListCom
             self::encode($this->reserved),
             'string',
             'Whitelist of reserved names on comments',
-            true,false
+            true,
+            false
         );
     }
 
-    # Return 
+    # Return
     # true if it is a reserved name with wrong email
     # false if it is not a reserved name
     # null if it is a reserved name with right email
@@ -303,25 +291,26 @@ class whiteListCom
             return false;
         } elseif ($this->reserved[$author] != $email) {
             return true;
-        } else {
-            return null;
         }
+
+        return null;
     }
 
     # You must do a commit to save this change
     public function addReserved($author, $email)
     {
         $this->reserved[$author] = $email;
+
         return true;
     }
 
     # You must do a commit to save this change
     public function emptyReserved()
     {
-        $this->reserved = array();
+        $this->reserved = [];
     }
 
-    # Return 
+    # Return
     # true if it is known as an unmoderated email else false
     public function isUnmoderated($email)
     {
@@ -331,7 +320,7 @@ class whiteListCom
     # You must do a commit to save this change
     public function addUnmoderated($email)
     {
-        if (!in_array($email,$this->unmoderated)) {
+        if (!in_array($email, $this->unmoderated)) {
             $this->unmoderated[] = $email;
 
             return true;
@@ -343,24 +332,24 @@ class whiteListCom
     # You must do a commit to save this change
     public function emptyUnmoderated()
     {
-        $this->unmoderated = array();
+        $this->unmoderated = [];
     }
 
     public function getPostsUsers()
     {
-        $users = array();
-        $rs = $this->core->blog->getPostsUsers();
-        while($rs->fetch()) {
+        $users = [];
+        $rs    = dcCore::app()->blog->getPostsUsers();
+        while ($rs->fetch()) {
             $name = dcUtils::getUserCN(
                 $rs->user_id,
                 $rs->user_name,
                 $rs->user_firstname,
                 $rs->user_displayname
             );
-            $users[] = array(
-                'name' => $name,
-                'email' => $rs->user_email
-            );
+            $users[] = [
+                'name'  => $name,
+                'email' => $rs->user_email,
+            ];
         }
 
         return $users;
@@ -368,19 +357,19 @@ class whiteListCom
 
     public function getCommentsUsers()
     {
-        $users = array();
-        $rs = $this->con->select(
+        $users = [];
+        $rs    = $this->con->select(
             'SELECT comment_author, comment_email ' .
-            'FROM ' . $this->core->prefix . 'comment C ' .
-            'LEFT JOIN ' . $this->core->prefix . 'post P ON C.post_id=P.post_id ' .
+            'FROM ' . dcCore::app()->prefix . dcBlog::COMMENT_TABLE_NAME . ' C ' .
+            'LEFT JOIN ' . dcCore::app()->prefix . 'post P ON C.post_id=P.post_id ' .
             "WHERE blog_id='" . $this->blog . "' AND comment_trackback=0 " .
             'GROUP BY comment_email, comment_author ' // Added author to fix postgreSql
         );
-        while($rs->fetch()) {
-            $users[] = array(
-                'name' => $rs->comment_author,
-                'email' => $rs->comment_email
-            );
+        while ($rs->fetch()) {
+            $users[] = [
+                'name'  => $rs->comment_author,
+                'email' => $rs->comment_email,
+            ];
         }
 
         return $users;
@@ -388,7 +377,7 @@ class whiteListCom
 
     public static function encode($x)
     {
-        $y = is_array($x) ? $x : array();
+        $y = is_array($x) ? $x : [];
 
         return base64_encode(serialize($y));
     }
@@ -397,7 +386,7 @@ class whiteListCom
     {
         $y = @unserialize(@base64_decode($x));
 
-        return is_array($y) ? $y : array();
+        return is_array($y) ? $y : [];
     }
 }
 
@@ -411,26 +400,24 @@ class whiteListComBehaviors
     # from behavior publicAfterCommentCreate
     public static function switchStatus($cur, $id)
     {
-        global $core;
-
-        if ($core->blog === null 
-         || $core->blog->settings->system->comments_pub) {
+        if (dcCore::app()->blog === null
+         || dcCore::app()->blog->settings->system->comments_pub) {
             return null;
         }
 
         if ($cur->comment_spam_filter == 'whiteListComModeratedFilter'
          && $cur->comment_spam_status == 'unmoderated') {
-            $core->con->writeLock($core->prefix.'comment');
+            dcCore::app()->con->writeLock(dcCore::app()->prefix . dcBlog::COMMENT_TABLE_NAME);
 
-            $cur->comment_status = 1;
+            $cur->comment_status      = 1;
             $cur->comment_spam_status = 0;
             $cur->comment_spam_filter = 0;
             $cur->update('WHERE comment_id = ' . $id . ' ');
 
-            $core->con->unlock();
+            dcCore::app()->con->unlock();
 
-            $core->blog->triggerComment($id);
-            $core->blog->triggerBlog();
+            dcCore::app()->blog->triggerComment($id);
+            dcCore::app()->blog->triggerBlog();
         }
     }
 }
