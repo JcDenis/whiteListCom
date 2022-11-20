@@ -1,12 +1,13 @@
+<?xml version="1.0"?>
 <modules xmlns:da="http://dotaddict.org/da/">
-<module id="whiteListCom">
-<name>Liste blanche des commentaires</name>
-<version>0.8</version>
-<author>Jean-Christian Denis and Contributors</author>
-<desc>Whitelists for comments moderation</desc>
-<file>https://github.com/JcDenis/whiteListCom/releases/download/v0.8/plugin-whiteListCom.zip</file>
-<da:dcmin>2.19</da:dcmin>
-<da:details>https://plugins.dotaddict.org/dc2/details/whiteListCom</da:details>
-<da:support>https://github.com/JcDenis/whiteListCom</da:support>
-</module>
+  <module id="whiteListCom">
+    <name>Whitelist comments</name>
+    <version>0.9</version>
+    <author>Jean-Christian Denis and Contributors</author>
+    <desc>Whitelists for comments moderation</desc>
+    <file>https://github.com/JcDenis/whiteListCom/releases/download/v0.9/plugin-whiteListCom.zip</file>
+    <da:dcmin>2.24</da:dcmin>
+    <da:details>https://plugins.dotaddict.org/dc2/details/whiteListCom</da:details>
+    <da:support>https://github.com/JcDenis/whiteListCom</da:support>
+  </module>
 </modules>

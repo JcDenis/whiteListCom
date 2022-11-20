@@ -1,3 +1,6 @@
+0.9 - 2022.11.20
+- fix compatibility with Dotclear 2.24 (required)
+
 0.8 - 2021.09.10
 - clean up code
 - add dcstore file
