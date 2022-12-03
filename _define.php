@@ -21,7 +21,10 @@ $this->registerModule(
     '0.9',
     [
         'requires'    => [['core', '2.24']],
-        'permissions' => dcAuth::PERMISSION_ADMIN,
+        'permissions' => dcCore::app()->auth->makePermissions([
+            dcAuth::PERMISSION_USAGE,
+            dcAuth::PERMISSION_CONTENT_ADMIN,
+        ]),
         'priority'    => 200,
         'type'        => 'plugin',
         'support'     => 'https://github.com/JcDenis/whiteListCom',
