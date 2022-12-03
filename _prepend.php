@@ -16,10 +16,12 @@ if (!defined('DC_RC_PATH')) {
 
 $d = __DIR__ . '/inc/lib.whitelistcom.php';
 
-Clearbricks::lib()->autoload(['whiteListCom' => $d]);
-Clearbricks::lib()->autoload(['whiteListComBehaviors' => $d]);
-Clearbricks::lib()->autoload(['whiteListComReservedFilter' => $d]);
-Clearbricks::lib()->autoload(['whiteListComModeratedFilter' => $d]);
+Clearbricks::lib()->autoload([
+    'whiteListCom'                => $d,
+    'whiteListComBehaviors'       => $d,
+    'whiteListComReservedFilter'  => $d,
+    'whiteListComModeratedFilter' => $d,
+]);
 
 dcCore::app()->spamfilters[] = 'whiteListComModeratedFilter';
 
