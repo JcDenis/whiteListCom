@@ -140,7 +140,7 @@ class UnmoderatedWhiteList extends dcSpamFilter
         '</table>' .
         '</div>' .
         '</div>' .
-        '<p><input type="submit" name="update_unmoderated" value="' . __('Save') . '" />' .
+        '<p><input type="submit" id="update_unmoderated" name="update_unmoderated" value="' . __('Save') . '" />' .
         dcCore::app()->formNonce() . '</p>' .
         '</form>';
 

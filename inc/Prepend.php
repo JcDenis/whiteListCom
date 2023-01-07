@@ -50,8 +50,8 @@ class Prepend
             ]);
         }
 
-        dcCore::app()->spamfilters[] = 'UnmoderatedWhiteList';
-        dcCore::app()->spamfilters[] = 'ReservedWhiteList';
+        dcCore::app()->spamfilters[] = __NAMESPACE__ . '\\' . 'UnmoderatedWhiteList';
+        dcCore::app()->spamfilters[] = __NAMESPACE__ . '\\' . 'ReservedWhiteList';
 
         dcCore::app()->addBehavior('publicAfterCommentCreate', function ($cur, $id) {
             if (dcCore::app()->blog === null

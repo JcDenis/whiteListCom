@@ -16,11 +16,13 @@ namespace Dotclear\Plugin\whiteListCom;
 
 /* dotclear ns */
 use dcCore;
+use dcPage;
 use dcSpamFilter;
 
 /* clearbricks ns */
 use form;
 use html;
+use http;
 
 /* php ns */
 use Exception;
@@ -31,7 +33,7 @@ use Exception;
  * @brief Filter for reserved names.
  * @since 2.6
  */
-class whiteListComReservedFilter extends dcSpamFilter
+class ReservedWhiteList extends dcSpamFilter
 {
     public $name    = 'Reserved names';
     public $has_gui = true;
@@ -82,11 +84,14 @@ class whiteListComReservedFilter extends dcSpamFilter
         try {
             if (!empty($_POST['update_reserved'])) {
                 $wlc->emptyReserved();
-                foreach ($_POST['reserved'] as $email => $name) {
-                    $wlc->addReserved($name, $email);
+                foreach ($_POST['reserved'] as $i => $name) {
+                    $wlc->addReserved($name, $_POST['reserved_email'][$i]);
                 }
                 $wlc->commit();
+                dcPage::addSuccessNotice(__('Reserved name have been successfully updated.'));
+                http::redirect($url);
             }
+
             $comments = $wlc->getCommentsUsers();
         } catch (Exception $e) {
             dcCore::app()->error->add($e->getMessage());
@@ -99,17 +104,20 @@ class whiteListComReservedFilter extends dcSpamFilter
         '<thead><tr><th>' . __('Author') . '</th><th>' . __('Email') . '</th></tr></thead>' .
         '<tbody>';
 
+        $i = 0;
         foreach ($comments as $user) {
             $res .= '<tr class="line">' .
             '<td class="nowrap">' .
             form::checkbox(
-                ['reserved[' . $user['email'] . ']'],
+                ['reserved[' . $i . ']'],
                 $user['name'],
                 (null === $wlc->isReserved($user['name'], $user['email']))
             ) .
+            form::hidden(['reserved_email[' . $i . ']'], $user['email']) .
             ' ' . $user['name'] . '</td>' .
             '<td class="nowrap">' . $user['email'] . '</td>' .
             '</tr>';
+            $i++;
         }
 
         $res .= '</tbody>' .
