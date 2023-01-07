@@ -10,9 +10,20 @@
  * @copyright Jean-Christian Denis
  * @copyright GPL-2.0 https://www.gnu.org/licenses/gpl-2.0.html
  */
-if (!defined('DC_RC_PATH')) {
-    return null;
-}
+declare(strict_types=1);
+
+namespace Dotclear\Plugin\whiteListCom;
+
+/* dotclear ns */
+use dcCore;
+use dcSpamFilter;
+
+/* clearbricks ns */
+use form;
+use html;
+
+/* php ns */
+use Exception;
 
 /**
  * @ingroup DC_PLUGIN_WHITELISTCOM
@@ -21,7 +32,7 @@ if (!defined('DC_RC_PATH')) {
  *
  * This filter is used only if comments are moderates
  */
-class whiteListComModeratedFilter extends dcSpamFilter
+class UnmoderatedWhiteList extends dcSpamFilter
 {
     public $name    = 'Unmoderated authors';
     public $has_gui = true;
@@ -41,7 +52,7 @@ class whiteListComModeratedFilter extends dcSpamFilter
         }
 
         try {
-            $wlc = new whiteListCom();
+            $wlc = new Core();
             if ($wlc->isUnmoderated($email)) {
                 $status = 'unmoderated';
 
@@ -56,7 +67,7 @@ class whiteListComModeratedFilter extends dcSpamFilter
 
     public function gui(string $url): string
     {
-        $wlc   = new whiteListCom();
+        $wlc   = new Core();
         $posts = $comments = [];
 
         try {

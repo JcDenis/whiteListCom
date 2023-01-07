@@ -10,9 +10,21 @@
  * @copyright Jean-Christian Denis
  * @copyright GPL-2.0 https://www.gnu.org/licenses/gpl-2.0.html
  */
-if (!defined('DC_RC_PATH')) {
-    return null;
-}
+declare(strict_types=1);
+
+namespace Dotclear\Plugin\whiteListCom;
+
+/* dotclear ns */
+use dcCore;
+use dcSpamFilter;
+
+/* clearbricks ns */
+use form;
+use html;
+
+/* php ns */
+use Exception;
+
 
 /**
  * @ingroup DC_PLUGIN_WHITELISTCOM
@@ -39,7 +51,7 @@ class whiteListComReservedFilter extends dcSpamFilter
         $throw = false;
 
         try {
-            $wlc = new whiteListCom();
+            $wlc = new Core();
 
             if (true === $wlc->isReserved($author, $email)) {
                 $status = 'reserved name';
@@ -64,7 +76,7 @@ class whiteListComReservedFilter extends dcSpamFilter
 
     public function gui(string $url): string
     {
-        $wlc      = new whiteListCom();
+        $wlc      = new Core();
         $comments = [];
 
         try {

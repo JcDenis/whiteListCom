@@ -10,16 +10,21 @@
  * @copyright Jean-Christian Denis
  * @copyright GPL-2.0 https://www.gnu.org/licenses/gpl-2.0.html
  */
-if (!defined('DC_RC_PATH')) {
-    return null;
-}
+declare(strict_types=1);
+
+namespace Dotclear\Plugin\whiteListCom;
+
+/* dotclear ns */
+use dcCore;
+use dcUtils;
+
 
 /**
  * @ingroup DC_PLUGIN_WHITELISTCOM
  * @brief White list filters methods
  * @since 2.6
  */
-class whiteListCom
+class Core
 {
     public $con;
     public $blog;
@@ -32,17 +37,17 @@ class whiteListCom
     {
         $this->con         = dcCore::app()->con;
         $this->blog        = dcCore::app()->con->escape(dcCore::app()->blog->id);
-        $this->settings    = dcCore::app()->blog->settings->whiteListCom;
-        $unmoderated       = $this->settings->whiteListCom_unmoderated;
+        $this->settings    = dcCore::app()->blog->settings->get(basename(dirname(__DIR__)));
+        $unmoderated       = $this->settings->get('unmoderated');
         $this->unmoderated = self::decode($unmoderated);
-        $reserved          = $this->settings->whiteListCom_reserved;
+        $reserved          = $this->settings->get('reserved');
         $this->reserved    = self::decode($reserved);
     }
 
     public function commit()
     {
         $this->settings->put(
-            'whiteListCom_unmoderated',
+            'unmoderated',
             self::encode($this->unmoderated),
             'string',
             'Whitelist of unmoderated users on comments',
@@ -51,7 +56,7 @@ class whiteListCom
         );
 
         $this->settings->put(
-            'whiteListCom_reserved',
+            'reserved',
             self::encode($this->reserved),
             'string',
             'Whitelist of reserved names on comments',
@@ -158,12 +163,12 @@ class whiteListCom
     {
         $y = is_array($x) ? $x : [];
 
-        return base64_encode(serialize($y));
+        return json_encode($y);
     }
 
     public static function decode($x)
     {
-        $y = @unserialize(@base64_decode($x));
+        $y = json_decode($x);
 
         return is_array($y) ? $y : [];
     }
