@@ -26,6 +26,7 @@ class Prepend
         'Core',
         'UnmoderatedWhiteList',
         'ReservedWhiteList',
+        'Install',
         'Prepend',
     ];
     protected static $init = false;
