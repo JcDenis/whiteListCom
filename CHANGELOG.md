@@ -1,3 +1,9 @@
+1.0 - 2023.01.08
+- use abstract plugin id
+- use anonymous functions
+- use namespace
+- fix error on forms
+
 0.9 - 2022.11.20
 - fix compatibility with Dotclear 2.24 (required)
 
