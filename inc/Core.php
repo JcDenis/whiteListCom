@@ -15,6 +15,7 @@ declare(strict_types=1);
 namespace Dotclear\Plugin\whiteListCom;
 
 /* dotclear ns */
+use dcBlog;
 use dcCore;
 use dcUtils;
 
@@ -168,7 +169,7 @@ class Core
 
     public static function decode($x)
     {
-        $y = json_decode($x);
+        $y = json_decode($x, true);
 
         return is_array($y) ? $y : [];
     }
