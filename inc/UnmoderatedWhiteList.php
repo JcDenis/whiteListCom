@@ -16,11 +16,13 @@ namespace Dotclear\Plugin\whiteListCom;
 
 /* dotclear ns */
 use dcCore;
+use dcPage;
 use dcSpamFilter;
 
 /* clearbricks ns */
 use form;
 use html;
+use http;
 
 /* php ns */
 use Exception;
@@ -77,6 +79,8 @@ class UnmoderatedWhiteList extends dcSpamFilter
                     $wlc->addUnmoderated($email);
                 }
                 $wlc->commit();
+                dcPage::addSuccessNotice(__('Unmoderated names have been successfully updated.'));
+                http::redirect($url);
             }
             $posts    = $wlc->getPostsUsers();
             $comments = $wlc->getCommentsUsers();

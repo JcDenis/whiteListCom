@@ -18,7 +18,7 @@ $this->registerModule(
     'Whitelist comments',
     'Whitelists for comments moderation',
     'Jean-Christian Denis and Contributors',
-    '0.9',
+    '1.0',
     [
         'requires'    => [['core', '2.24']],
         'permissions' => dcCore::app()->auth->makePermissions([
@@ -27,8 +27,8 @@ $this->registerModule(
         ]),
         'priority'    => 200,
         'type'        => 'plugin',
-        'support'     => 'https://github.com/JcDenis/whiteListCom',
-        'details'     => 'https://plugins.dotaddict.org/dc2/details/whiteListCom',
-        'repository'  => 'https://raw.githubusercontent.com/JcDenis/whiteListCom/master/dcstore.xml',
+        'support'     => 'https://github.com/JcDenis/' . basename(__DIR__),
+        'details'     => 'https://plugins.dotaddict.org/dc2/details/' . basename(__DIR__),
+        'repository'  => 'https://raw.githubusercontent.com/JcDenis/' . basename(__DIR__) . '/master/dcstore.xml',
     ]
 );

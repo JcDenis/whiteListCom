@@ -1,11 +1,11 @@
 <?php
 /**
- * @brief pacKman, a plugin for Dotclear 2
+ * @brief whiteListCom, a plugin for Dotclear 2
  *
  * @package Dotclear
  * @subpackage Plugin
  *
- * @author Jean-Christian Denis
+ * @author Jean-Christian Denis and Contributors
  *
  * @copyright Jean-Christian Denis
  * @copyright GPL-2.0 https://www.gnu.org/licenses/gpl-2.0.html
@@ -94,7 +94,7 @@ class Install
 
             while ($record->fetch()) {
                 if (preg_match('/^whiteListCom(.*?)$/', $record->setting_id, $match)) {
-                    $value              = @unserialize(@base64_decode($x));
+                    $value              = @unserialize(@base64_decode($record->setting_value));
                     $cur                = dcCore::app()->con->openCursor(dcCore::app()->prefix . dcNamespace::NS_TABLE_NAME);
                     $cur->setting_id    = $match[1];
                     $cur->setting_ns    = self::$pid;

@@ -15,6 +15,7 @@ declare(strict_types=1);
 namespace Dotclear\Plugin\whiteListCom;
 
 /* dotclear ns */
+use dcBlog;
 use dcCore;
 
 /* clearbricks ns */
@@ -78,4 +79,3 @@ class Prepend
         return true;
     }
 }
-

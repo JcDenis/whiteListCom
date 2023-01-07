@@ -27,7 +27,6 @@ use http;
 /* php ns */
 use Exception;
 
-
 /**
  * @ingroup DC_PLUGIN_WHITELISTCOM
  * @brief Filter for reserved names.
@@ -88,7 +87,7 @@ class ReservedWhiteList extends dcSpamFilter
                     $wlc->addReserved($name, $_POST['reserved_email'][$i]);
                 }
                 $wlc->commit();
-                dcPage::addSuccessNotice(__('Reserved name have been successfully updated.'));
+                dcPage::addSuccessNotice(__('Reserved names have been successfully updated.'));
                 http::redirect($url);
             }
 

@@ -19,7 +19,6 @@ use dcBlog;
 use dcCore;
 use dcUtils;
 
-
 /**
  * @ingroup DC_PLUGIN_WHITELISTCOM
  * @brief White list filters methods
