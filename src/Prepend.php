@@ -14,50 +14,32 @@ declare(strict_types=1);
 
 namespace Dotclear\Plugin\whiteListCom;
 
-/* dotclear ns */
 use dcBlog;
 use dcCore;
+use dcNsProcess;
 
-/* clearbricks ns */
-use Clearbricks;
-
-class Prepend
+class Prepend extends dcNsProcess
 {
-    private const LIBS = [
-        'Core',
-        'UnmoderatedWhiteList',
-        'ReservedWhiteList',
-        'Install',
-        'Prepend',
-    ];
-    protected static $init = false;
-
     public static function init(): bool
     {
-        self::$init = defined('DC_RC_PATH');
+        self::$init = true;
 
         return self::$init;
     }
 
-    public static function process(): ?bool
+    public static function process(): bool
     {
         if (!self::$init) {
             return false;
         }
 
-        foreach (self::LIBS as $lib) {
-            Clearbricks::lib()->autoload([
-                __NAMESPACE__ . '\\' . $lib => __DIR__ . DIRECTORY_SEPARATOR . $lib . '.php',
-            ]);
-        }
+        dcCore::app()->spamfilters[] = UnmoderatedWhiteList::class;
+        dcCore::app()->spamfilters[] = ReservedWhiteList::class;
 
-        dcCore::app()->spamfilters[] = __NAMESPACE__ . '\\' . 'UnmoderatedWhiteList';
-        dcCore::app()->spamfilters[] = __NAMESPACE__ . '\\' . 'ReservedWhiteList';
-
-        dcCore::app()->addBehavior('publicAfterCommentCreate', function ($cur, $id) {
+        dcCore::app()->addBehavior('publicAfterCommentCreate', function ($cur, $id): void {
             if (dcCore::app()->blog === null
              || dcCore::app()->blog->settings->get('system')->get('comments_pub')) {
-                return null;
+                return;
             }
 
             if ($cur->__get('comment_spam_filter') == 'UnmoderatedWhiteList'

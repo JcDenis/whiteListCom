@@ -37,14 +37,12 @@ class Core
     {
         $this->con         = dcCore::app()->con;
         $this->blog        = dcCore::app()->con->escape(dcCore::app()->blog->id);
-        $this->settings    = dcCore::app()->blog->settings->get(basename(dirname(__DIR__)));
-        $unmoderated       = $this->settings->get('unmoderated');
-        $this->unmoderated = self::decode($unmoderated);
-        $reserved          = $this->settings->get('reserved');
-        $this->reserved    = self::decode($reserved);
+        $this->settings    = dcCore::app()->blog->settings->get(My::id());
+        $this->unmoderated = self::decode($this->settings->get('unmoderated'));
+        $this->reserved    = self::decode($this->settings->get('reserved'));
     }
 
-    public function commit()
+    public function commit(): void
     {
         $this->settings->put(
             'unmoderated',
@@ -69,7 +67,7 @@ class Core
     # true if it is a reserved name with wrong email
     # false if it is not a reserved name
     # null if it is a reserved name with right email
-    public function isReserved($author, $email)
+    public function isReserved($author, $email): ?bool
     {
         if (!isset($this->reserved[$author])) {
             return false;
@@ -81,7 +79,7 @@ class Core
     }
 
     # You must do a commit to save this change
-    public function addReserved($author, $email)
+    public function addReserved($author, $email): bool
     {
         $this->reserved[$author] = $email;
 
@@ -89,20 +87,20 @@ class Core
     }
 
     # You must do a commit to save this change
-    public function emptyReserved()
+    public function emptyReserved(): void
     {
         $this->reserved = [];
     }
 
     # Return
     # true if it is known as an unmoderated email else false
-    public function isUnmoderated($email)
+    public function isUnmoderated($email): bool
     {
         return in_array($email, $this->unmoderated);
     }
 
     # You must do a commit to save this change
-    public function addUnmoderated($email)
+    public function addUnmoderated($email): ?bool
     {
         if (!in_array($email, $this->unmoderated)) {
             $this->unmoderated[] = $email;
@@ -114,32 +112,32 @@ class Core
     }
 
     # You must do a commit to save this change
-    public function emptyUnmoderated()
+    public function emptyUnmoderated(): void
     {
         $this->unmoderated = [];
     }
 
-    public function getPostsUsers()
+    public function getPostsUsers(): array
     {
         $users = [];
         $rs    = dcCore::app()->blog->getPostsUsers();
         while ($rs->fetch()) {
             $name = dcUtils::getUserCN(
-                $rs->__get('user_id'),
-                $rs->__get('user_name'),
-                $rs->__get('user_firstname'),
-                $rs->__get('user_displayname')
+                $rs->f('user_id'),
+                $rs->f('user_name'),
+                $rs->f('user_firstname'),
+                $rs->f('user_displayname')
             );
             $users[] = [
                 'name'  => $name,
-                'email' => $rs->__get('user_email'),
+                'email' => $rs->f('user_email'),
             ];
         }
 
         return $users;
     }
 
-    public function getCommentsUsers()
+    public function getCommentsUsers(): array
     {
         $users = [];
         $rs    = $this->con->select(
@@ -151,22 +149,22 @@ class Core
         );
         while ($rs->fetch()) {
             $users[] = [
-                'name'  => $rs->__get('comment_author'),
-                'email' => $rs->__get('comment_email'),
+                'name'  => $rs->f('comment_author'),
+                'email' => $rs->f('comment_email'),
             ];
         }
 
         return $users;
     }
 
-    public static function encode($x)
+    public static function encode($x): string
     {
         $y = is_array($x) ? $x : [];
 
         return json_encode($y);
     }
 
-    public static function decode($x)
+    public static function decode($x): array
     {
         $y = json_decode($x, true);
 

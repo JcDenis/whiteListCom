@@ -17,11 +17,12 @@ namespace Dotclear\Plugin\whiteListCom;
 /* dotclear ns */
 use dcCore;
 use dcNamespace;
+use dcNsProcess;
 
 /* php ns */
 use Exception;
 
-class Install
+class Install extends dcNsProcess
 {
     // Module specs
     private static $mod_conf = [
@@ -39,19 +40,14 @@ class Install
         ],
     ];
 
-    // Nothing to change below
-    private static $pid    = '';
-    protected static $init = false;
-
     public static function init(): bool
     {
-        self::$pid  = basename(dirname(__DIR__));
-        self::$init = defined('DC_CONTEXT_ADMIN') && dcCore::app()->newVersion(self::$pid, dcCore::app()->plugins->moduleInfo(self::$pid, 'version'));
+        self::$init = defined('DC_CONTEXT_ADMIN') && dcCore::app()->newVersion(My::id(), dcCore::app()->plugins->moduleInfo(My::id(), 'version'));
 
         return self::$init;
     }
 
-    public static function process(): ?bool
+    public static function process(): bool
     {
         if (!self::$init) {
             return false;
@@ -63,7 +59,7 @@ class Install
 
             // Set module settings
             foreach (self::$mod_conf as $v) {
-                dcCore::app()->blog->settings->__get(self::$pid)->put(
+                dcCore::app()->blog->settings->get(My::id())->put(
                     $v[0],
                     $v[1],
                     $v[2],
@@ -83,7 +79,7 @@ class Install
 
     public static function growUp(): void
     {
-        $current = dcCore::app()->getVersion(self::$pid);
+        $current = dcCore::app()->getVersion(My::id());
 
         // Update settings id, ns
         if ($current && version_compare($current, '1.0', '<')) {
@@ -97,7 +93,7 @@ class Install
                     $value              = @unserialize(@base64_decode($record->setting_value));
                     $cur                = dcCore::app()->con->openCursor(dcCore::app()->prefix . dcNamespace::NS_TABLE_NAME);
                     $cur->setting_id    = $match[1];
-                    $cur->setting_ns    = self::$pid;
+                    $cur->setting_ns    = My::id();
                     $cur->setting_value = is_array($value) ? json_encode($value) : '[]';
                     $cur->update(
                         "WHERE setting_id = '" . $record->setting_id . "' and setting_ns = 'whiteListCom' " .

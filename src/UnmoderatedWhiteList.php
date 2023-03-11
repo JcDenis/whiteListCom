@@ -49,7 +49,7 @@ class UnmoderatedWhiteList extends dcSpamFilter
     {
         if ($type != 'comment'
          || dcCore::app()->blog === null
-         || dcCore::app()->blog->settings->system->comments_pub) {
+         || dcCore::app()->blog->settings->get('system')->get('comments_pub')) {
             return null;
         }
 
@@ -90,7 +90,7 @@ class UnmoderatedWhiteList extends dcSpamFilter
 
         $res = '';
 
-        if (dcCore::app()->blog->settings->system->comments_pub) {
+        if (dcCore::app()->blog->settings->get('system')->get('comments_pub')) {
             $res .= '<p class="message">' .
             __('This filter is used only if comments are moderates') .
             '</p>';

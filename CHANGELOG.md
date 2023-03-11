@@ -1,3 +1,6 @@
+1.1 - 2023.03.11
+- code review for Dotclear 2.25
+
 1.0 - 2023.01.08
 - use abstract plugin id
 - use anonymous functions
