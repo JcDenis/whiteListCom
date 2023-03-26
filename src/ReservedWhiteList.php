@@ -14,17 +14,15 @@ declare(strict_types=1);
 
 namespace Dotclear\Plugin\whiteListCom;
 
-/* dotclear ns */
 use dcCore;
 use dcPage;
 use dcSpamFilter;
-
-/* clearbricks ns */
-use form;
-use html;
-use http;
-
-/* php ns */
+use Dotclear\Helper\Html\Form\{
+    Checkbox,
+    Hidden
+};
+use Dotclear\Helper\Html\Html;
+use Dotclear\Helper\Network\Http;
 use Exception;
 
 /**
@@ -88,7 +86,7 @@ class ReservedWhiteList extends dcSpamFilter
                 }
                 $wlc->commit();
                 dcPage::addSuccessNotice(__('Reserved names have been successfully updated.'));
-                http::redirect($url);
+                Http::redirect($url);
             }
 
             $comments = $wlc->getCommentsUsers();
@@ -96,7 +94,7 @@ class ReservedWhiteList extends dcSpamFilter
             dcCore::app()->error->add($e->getMessage());
         }
 
-        $res = '<form action="' . html::escapeURL($url) . '" method="post">' .
+        $res = '<form action="' . Html::escapeURL($url) . '" method="post">' .
         '<p>' . __('Check the users who can make comments without being moderated.') . '</p>' .
         '<p>' . __('Comments authors list') . '</p>' .
         '<table class="clear">' .
@@ -107,12 +105,8 @@ class ReservedWhiteList extends dcSpamFilter
         foreach ($comments as $user) {
             $res .= '<tr class="line">' .
             '<td class="nowrap">' .
-            form::checkbox(
-                ['reserved[' . $i . ']'],
-                $user['name'],
-                (null === $wlc->isReserved($user['name'], $user['email']))
-            ) .
-            form::hidden(['reserved_email[' . $i . ']'], $user['email']) .
+            (new Checkbox(['reserved[' . $i . ']'], (null === $wlc->isReserved($user['name'], $user['email']))))->value($user['name'])->render() .
+            (new Hidden(['reserved_email[' . $i . ']'], $user['email']))->render() .
             ' ' . $user['name'] . '</td>' .
             '<td class="nowrap">' . $user['email'] . '</td>' .
             '</tr>';

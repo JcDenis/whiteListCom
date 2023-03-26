@@ -14,17 +14,12 @@ declare(strict_types=1);
 
 namespace Dotclear\Plugin\whiteListCom;
 
-/* dotclear ns */
 use dcCore;
 use dcPage;
 use dcSpamFilter;
-
-/* clearbricks ns */
-use form;
-use html;
-use http;
-
-/* php ns */
+use Dotclear\Helper\Html\Form\Checkbox;
+use Dotclear\Helper\Html\Html;
+use Dotclear\Helper\Network\Http;
 use Exception;
 
 /**
@@ -80,7 +75,7 @@ class UnmoderatedWhiteList extends dcSpamFilter
                 }
                 $wlc->commit();
                 dcPage::addSuccessNotice(__('Unmoderated names have been successfully updated.'));
-                http::redirect($url);
+                Http::redirect($url);
             }
             $posts    = $wlc->getPostsUsers();
             $comments = $wlc->getCommentsUsers();
@@ -96,7 +91,7 @@ class UnmoderatedWhiteList extends dcSpamFilter
             '</p>';
         }
 
-        $res .= '<form action="' . html::escapeURL($url) . '" method="post">' .
+        $res .= '<form action="' . Html::escapeURL($url) . '" method="post">' .
         '<p>' . __('Check the users who can make comments without being moderated.') . '</p>' .
         '<div class="two-cols">' .
         '<div class="col">' .
@@ -108,11 +103,7 @@ class UnmoderatedWhiteList extends dcSpamFilter
         foreach ($posts as $user) {
             $res .= '<tr class="line">' .
             '<td class="nowrap">' .
-            form::checkbox(
-                ['unmoderated[]'],
-                $user['email'],
-                $wlc->isUnmoderated($user['email'])
-            ) .
+            (new Checkbox(['unmoderated[]'], $wlc->isUnmoderated($user['email'])))->value($user['email'])->render() .
             ' ' . $user['name'] . '</td>' .
             '<td class="nowrap">' . $user['email'] . '</td>' .
             '</tr>';
@@ -130,11 +121,7 @@ class UnmoderatedWhiteList extends dcSpamFilter
         foreach ($comments as $user) {
             $res .= '<tr class="line">' .
             '<td class="nowrap">' .
-            form::checkbox(
-                ['unmoderated[]'],
-                $user['email'],
-                $wlc->isUnmoderated($user['email'])
-            ) .
+            (new Checkbox(['unmoderated[]'], $wlc->isUnmoderated($user['email'])))->value($user['email'])->render() .
             ' ' . $user['name'] . '</td>' .
             '<td class="nowrap">' . $user['email'] . '</td>' .
             '</tr>';
