@@ -1,3 +1,14 @@
+1.2 - 2023.04.24
+- require dotclear 2.26
+- use latest dotclear namespace
+- use sql statement
+- use static methods for filters
+- fix comments without email
+- fix list display
+- fix nullsafe warnings
+- add dependencies to plugin antispam
+- add plugin Uninstaller features
+
 1.1 - 2023.03.11
 - code review for Dotclear 2.25
 

@@ -3,7 +3,7 @@
 [![Release](https://img.shields.io/github/v/release/JcDenis/whiteListCom)](https://github.com/JcDenis/whiteListCom/releases)
 [![Date](https://img.shields.io/github/release-date/JcDenis/whiteListCom)](https://github.com/JcDenis/whiteListCom/releases)
 [![Issues](https://img.shields.io/github/issues/JcDenis/whiteListCom)](https://github.com/JcDenis/whiteListCom/issues)
-[![Dotclear](https://img.shields.io/badge/dotclear-v2.25-blue.svg)](https://fr.dotclear.org/download)
+[![Dotclear](https://img.shields.io/badge/dotclear-v2.26-blue.svg)](https://fr.dotclear.org/download)
 [![Dotaddict](https://img.shields.io/badge/dotaddict-official-green.svg)](https://plugins.dotaddict.org/dc2/details/whiteListCom)
 [![License](https://img.shields.io/github/license/JcDenis/whiteListCom)](https://github.com/JcDenis/whiteListCom/blob/master/LICENSE)
 
@@ -20,7 +20,7 @@ and a list of reserved names (pair of nickname / email ).
 _whiteListCom_ requires: 
 
  * permissions to manage antispam
- * Dotclear 2.25
+ * Dotclear 2.26
 
 ## USAGE
 
