@@ -24,7 +24,7 @@ use dcUtils;
  * @brief White list filters methods
  * @since 2.6
  */
-class Core
+class Utils
 {
     public $con;
     public $blog;
@@ -36,7 +36,7 @@ class Core
     public function __construct()
     {
         $this->con         = dcCore::app()->con;
-        $this->blog        = dcCore::app()->con->escape(dcCore::app()->blog->id);
+        $this->blog        = dcCore::app()->con->escapeStr((string) dcCore::app()->blog->id);
         $this->settings    = dcCore::app()->blog->settings->get(My::id());
         $this->unmoderated = self::decode($this->settings->get('unmoderated'));
         $this->reserved    = self::decode($this->settings->get('reserved'));

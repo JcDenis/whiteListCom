@@ -50,7 +50,7 @@ class ReservedWhiteList extends dcSpamFilter
         $throw = false;
 
         try {
-            $wlc = new Core();
+            $wlc = new Utils();
 
             if (true === $wlc->isReserved($author, $email)) {
                 $status = 'reserved name';
@@ -75,7 +75,7 @@ class ReservedWhiteList extends dcSpamFilter
 
     public function gui(string $url): string
     {
-        $wlc      = new Core();
+        $wlc      = new Utils();
         $comments = [];
 
         try {

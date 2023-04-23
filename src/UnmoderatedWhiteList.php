@@ -49,7 +49,7 @@ class UnmoderatedWhiteList extends dcSpamFilter
         }
 
         try {
-            $wlc = new Core();
+            $wlc = new Utils();
             if ($wlc->isUnmoderated($email)) {
                 $status = 'unmoderated';
 
@@ -64,7 +64,7 @@ class UnmoderatedWhiteList extends dcSpamFilter
 
     public function gui(string $url): string
     {
-        $wlc   = new Core();
+        $wlc   = new Utils();
         $posts = $comments = [];
 
         try {
