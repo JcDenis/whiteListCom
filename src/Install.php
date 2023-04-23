@@ -14,18 +14,15 @@ declare(strict_types=1);
 
 namespace Dotclear\Plugin\whiteListCom;
 
-/* dotclear ns */
 use dcCore;
 use dcNamespace;
 use dcNsProcess;
-
-/* php ns */
 use Exception;
 
 class Install extends dcNsProcess
 {
     // Module specs
-    private static $mod_conf = [
+    private static array $mod_conf = [
         [
             'unmoderated',
             '[]',
@@ -49,7 +46,11 @@ class Install extends dcNsProcess
 
     public static function process(): bool
     {
-        if (!sestaticlf::$init) {
+        if (!static::$init) {
+            return false;
+        }
+
+        if (is_null(dcCore::app()->blog)) {
             return false;
         }
 
@@ -89,15 +90,15 @@ class Install extends dcNsProcess
             );
 
             while ($record->fetch()) {
-                if (preg_match('/^whiteListCom(.*?)$/', $record->setting_id, $match)) {
-                    $value              = @unserialize(@base64_decode($record->setting_value));
-                    $cur                = dcCore::app()->con->openCursor(dcCore::app()->prefix . dcNamespace::NS_TABLE_NAME);
-                    $cur->setting_id    = $match[1];
-                    $cur->setting_ns    = My::id();
-                    $cur->setting_value = is_array($value) ? json_encode($value) : '[]';
+                if (preg_match('/^whiteListCom(.*?)$/', $record->f('setting_id'), $match)) {
+                    $value = @unserialize(@base64_decode($record->f('setting_value')));
+                    $cur   = dcCore::app()->con->openCursor(dcCore::app()->prefix . dcNamespace::NS_TABLE_NAME);
+                    $cur->setField('setting_id', $match[1]);
+                    $cur->setField('setting_ns', My::id());
+                    $cur->setField('setting_value', is_array($value) ? json_encode($value) : '[]');
                     $cur->update(
-                        "WHERE setting_id = '" . $record->setting_id . "' and setting_ns = 'whiteListCom' " .
-                        'AND blog_id ' . (null === $record->blog_id ? 'IS NULL ' : ("= '" . dcCore::app()->con->escape($record->blog_id) . "' "))
+                        "WHERE setting_id = '" . $record->f('setting_id') . "' and setting_ns = 'whiteListCom' " .
+                        'AND blog_id ' . (null === $record->f('blog_id') ? 'IS NULL ' : ("= '" . dcCore::app()->con->escapeStr((string) $record->f('blog_id')) . "' "))
                     );
                 }
             }

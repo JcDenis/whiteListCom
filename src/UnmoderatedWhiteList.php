@@ -16,10 +16,10 @@ namespace Dotclear\Plugin\whiteListCom;
 
 use dcCore;
 use dcPage;
-use dcSpamFilter;
 use Dotclear\Helper\Html\Form\Checkbox;
 use Dotclear\Helper\Html\Html;
 use Dotclear\Helper\Network\Http;
+use Dotclear\Plugin\antispam\SpamFilter;
 use Exception;
 
 /**
@@ -29,17 +29,23 @@ use Exception;
  *
  * This filter is used only if comments are moderates
  */
-class UnmoderatedWhiteList extends dcSpamFilter
+class UnmoderatedWhiteList extends SpamFilter
 {
     public $name    = 'Unmoderated authors';
     public $has_gui = true;
 
+    /**
+     * @return  void
+     */
     protected function setInfo()
     {
         $this->name        = __('Unmoderated authors');
         $this->description = __('Whitelist of unmoderated authors');
     }
 
+    /**
+     * @return  void|null|bool
+     */
     public function isSpam($type, $author, $email, $site, $ip, $content, $post_id, &$status)
     {
         if ($type != 'comment'
@@ -49,8 +55,7 @@ class UnmoderatedWhiteList extends dcSpamFilter
         }
 
         try {
-            $wlc = new Utils();
-            if ($wlc->isUnmoderated($email)) {
+            if (Utils::isUnmoderated($email)) {
                 $status = 'unmoderated';
 
                 # return true in order to change comment_status after
@@ -69,23 +74,23 @@ class UnmoderatedWhiteList extends dcSpamFilter
 
         try {
             if (!empty($_POST['update_unmoderated'])) {
-                $wlc->emptyUnmoderated();
+                Utils::emptyUnmoderated();
                 foreach ($_POST['unmoderated'] as $email) {
-                    $wlc->addUnmoderated($email);
+                    Utils::addUnmoderated($email);
                 }
-                $wlc->commit();
+                Utils::commit();
                 dcPage::addSuccessNotice(__('Unmoderated names have been successfully updated.'));
                 Http::redirect($url);
             }
-            $posts    = $wlc->getPostsUsers();
-            $comments = $wlc->getCommentsUsers();
+            $posts    = Utils::getPostsUsers();
+            $comments = Utils::getCommentsUsers();
         } catch (Exception $e) {
             dcCore::app()->error->add($e->getMessage());
         }
 
         $res = '';
 
-        if (dcCore::app()->blog->settings->get('system')->get('comments_pub')) {
+        if (!is_null(dcCore::app()->blog) && dcCore::app()->blog->settings->get('system')->get('comments_pub')) {
             $res .= '<p class="message">' .
             __('This filter is used only if comments are moderates') .
             '</p>';
@@ -93,42 +98,46 @@ class UnmoderatedWhiteList extends dcSpamFilter
 
         $res .= '<form action="' . Html::escapeURL($url) . '" method="post">' .
         '<p>' . __('Check the users who can make comments without being moderated.') . '</p>' .
-        '<div class="two-cols">' .
-        '<div class="col">' .
-        '<p>' . __('Posts authors list') . '</p>' .
+        '<div class="two-boxes">' .
+        '<div class="box odd">' .
+        '<div class="table-outer">' .
         '<table class="clear">' .
+        '<caption>' . __('Posts authors list') . '</caption>' .
         '<thead><tr><th>' . __('Name') . '</th><th>' . __('Email') . '</th></tr></thead>' .
         '<tbody>';
 
         foreach ($posts as $user) {
-            $res .= '<tr class="line">' .
+            $checked = Utils::isUnmoderated($user['email']);
+            $res .= '<tr class="line' . ($checked ? '' : ' offline') . '">' .
             '<td class="nowrap">' .
-            (new Checkbox(['unmoderated[]'], $wlc->isUnmoderated($user['email'])))->value($user['email'])->render() .
+            (new Checkbox(['unmoderated[]'], $checked))->value($user['email'])->render() .
             ' ' . $user['name'] . '</td>' .
             '<td class="nowrap">' . $user['email'] . '</td>' .
             '</tr>';
         }
 
         $res .= '</tbody>' .
-        '</table>' .
+        '</table></div>' .
         '</div>' .
-        '<div class="col">' .
-        '<p>' . __('Comments authors list') . '</p>' .
+        '<div class="box even">' .
+        '<div class="table-outer">' .
         '<table class="clear">' .
+        '<caption>' . __('Comments authors list') . '</caption>' .
         '<thead><tr><th>' . __('Author') . '</th><th>' . __('Email') . '</th></tr></thead>' .
         '<tbody>';
 
         foreach ($comments as $user) {
-            $res .= '<tr class="line">' .
+            $checked = Utils::isUnmoderated($user['email']);
+            $res .= '<tr class="line' . ($checked ? '' : ' offline') . '">' .
             '<td class="nowrap">' .
-            (new Checkbox(['unmoderated[]'], $wlc->isUnmoderated($user['email'])))->value($user['email'])->render() .
+            (new Checkbox(['unmoderated[]'], $checked))->value($user['email'])->render() .
             ' ' . $user['name'] . '</td>' .
             '<td class="nowrap">' . $user['email'] . '</td>' .
             '</tr>';
         }
 
         $res .= '</tbody>' .
-        '</table>' .
+        '</table></div>' .
         '</div>' .
         '</div>' .
         '<p><input type="submit" id="update_unmoderated" name="update_unmoderated" value="' . __('Save') . '" />' .

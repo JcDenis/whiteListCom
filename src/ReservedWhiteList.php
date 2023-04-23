@@ -16,13 +16,13 @@ namespace Dotclear\Plugin\whiteListCom;
 
 use dcCore;
 use dcPage;
-use dcSpamFilter;
 use Dotclear\Helper\Html\Form\{
     Checkbox,
     Hidden
 };
 use Dotclear\Helper\Html\Html;
 use Dotclear\Helper\Network\Http;
+use Dotclear\Plugin\antispam\SpamFilter;
 use Exception;
 
 /**
@@ -30,17 +30,23 @@ use Exception;
  * @brief Filter for reserved names.
  * @since 2.6
  */
-class ReservedWhiteList extends dcSpamFilter
+class ReservedWhiteList extends SpamFilter
 {
     public $name    = 'Reserved names';
     public $has_gui = true;
 
+    /**
+     * @return  void
+     */
     protected function setInfo()
     {
         $this->name        = __('Reserved names');
         $this->description = __('Whitelist of reserved names of users');
     }
 
+    /**
+     * @return  void|null|bool
+     */
     public function isSpam($type, $author, $email, $site, $ip, $content, $post_id, &$status)
     {
         if ($type != 'comment') {
@@ -50,9 +56,7 @@ class ReservedWhiteList extends dcSpamFilter
         $throw = false;
 
         try {
-            $wlc = new Utils();
-
-            if (true === $wlc->isReserved($author, $email)) {
+            if (true === Utils::isReserved($author, $email)) {
                 $status = 'reserved name';
                 //return true;
                 $throw = true;
@@ -68,6 +72,9 @@ class ReservedWhiteList extends dcSpamFilter
         }
     }
 
+    /**
+     * @return  string
+     */
     public function getStatusMessage($status, $comment_id)
     {
         return __('This name is reserved to an other user.');
@@ -75,40 +82,41 @@ class ReservedWhiteList extends dcSpamFilter
 
     public function gui(string $url): string
     {
-        $wlc      = new Utils();
         $comments = [];
 
         try {
             if (!empty($_POST['update_reserved'])) {
-                $wlc->emptyReserved();
+                Utils::emptyReserved();
                 foreach ($_POST['reserved'] as $i => $name) {
-                    $wlc->addReserved($name, $_POST['reserved_email'][$i]);
+                    Utils::addReserved($name, $_POST['reserved_email'][$i]);
                 }
-                $wlc->commit();
+                Utils::commit();
                 dcPage::addSuccessNotice(__('Reserved names have been successfully updated.'));
                 Http::redirect($url);
             }
 
-            $comments = $wlc->getCommentsUsers();
+            $comments = Utils::getCommentsUsers();
         } catch (Exception $e) {
             dcCore::app()->error->add($e->getMessage());
         }
 
         $res = '<form action="' . Html::escapeURL($url) . '" method="post">' .
         '<p>' . __('Check the users who can make comments without being moderated.') . '</p>' .
-        '<p>' . __('Comments authors list') . '</p>' .
+        '<div class="table-outer">' .
         '<table class="clear">' .
+        '<caption>' . __('Comments authors list') . '</caption>' .
         '<thead><tr><th>' . __('Author') . '</th><th>' . __('Email') . '</th></tr></thead>' .
         '<tbody>';
 
         $i = 0;
         foreach ($comments as $user) {
-            $res .= '<tr class="line">' .
+            $checked = null === Utils::isReserved($user['name'], $user['email']);
+            $res .= '<tr class="line' . ($checked ? '' : ' offline') . '">' .
             '<td class="nowrap">' .
-            (new Checkbox(['reserved[' . $i . ']'], (null === $wlc->isReserved($user['name'], $user['email']))))->value($user['name'])->render() .
+            (new Checkbox(['reserved[' . $i . ']'], $checked))->value($user['name'])->render() .
             (new Hidden(['reserved_email[' . $i . ']'], $user['email']))->render() .
             ' ' . $user['name'] . '</td>' .
-            '<td class="nowrap">' . $user['email'] . '</td>' .
+            '<td class="nowrap maximal">' . $user['email'] . '</td>' .
             '</tr>';
             $i++;
         }

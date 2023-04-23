@@ -14,10 +14,13 @@ declare(strict_types=1);
 
 namespace Dotclear\Plugin\whiteListCom;
 
-/* dotclear ns */
 use dcBlog;
 use dcCore;
 use dcUtils;
+use Dotclear\Database\Statement\{
+    JoinStatement,
+    SelectStatement,
+};
 
 /**
  * @ingroup DC_PLUGIN_WHITELISTCOM
@@ -26,36 +29,61 @@ use dcUtils;
  */
 class Utils
 {
-    public $con;
-    public $blog;
-    public $settings;
+    /** @var    bool    $init   preload check */
+    private static bool $init = false;
 
-    private $unmoderated = [];
-    private $reserved    = [];
+    /** @var    array   $unmoderated    List of unmoderated users */
+    private static array $unmoderated = [];
 
-    public function __construct()
+    /** @var    array   $unmoderated    List of reserved name */
+    private static array $reserved = [];
+
+    /**
+     * Initialize properties.
+     */
+    private static function init(): void
     {
-        $this->con         = dcCore::app()->con;
-        $this->blog        = dcCore::app()->con->escapeStr((string) dcCore::app()->blog->id);
-        $this->settings    = dcCore::app()->blog->settings->get(My::id());
-        $this->unmoderated = self::decode($this->settings->get('unmoderated'));
-        $this->reserved    = self::decode($this->settings->get('reserved'));
+        if (self::$init) {
+            return;
+        }
+
+        if (is_null(dcCore::app()->blog)) {
+            return;
+        }
+
+        $s = dcCore::app()->blog->settings->get(My::id());
+
+        self::$unmoderated = self::decode($s->get('unmoderated'));
+        self::$reserved    = self::decode($s->get('reserved'));
+
+        self::$init = true;
     }
 
-    public function commit(): void
+    /**
+     * Save changes.
+     */
+    public static function commit(): void
     {
-        $this->settings->put(
+        if (is_null(dcCore::app()->blog)) {
+            return;
+        }
+
+        self::init();
+
+        $s = dcCore::app()->blog->settings->get(My::id());
+
+        $s->put(
             'unmoderated',
-            self::encode($this->unmoderated),
+            self::encode(self::$unmoderated),
             'string',
             'Whitelist of unmoderated users on comments',
             true,
             false
         );
 
-        $this->settings->put(
+        $s->put(
             'reserved',
-            self::encode($this->reserved),
+            self::encode(self::$reserved),
             'string',
             'Whitelist of reserved names on comments',
             true,
@@ -63,64 +91,122 @@ class Utils
         );
     }
 
-    # Return
-    # true if it is a reserved name with wrong email
-    # false if it is not a reserved name
-    # null if it is a reserved name with right email
-    public function isReserved($author, $email): ?bool
+    /**
+     * Check if a name is reserved.
+     *
+     * Return:
+     * - true if it is a reserved name with wrong email
+     * - false if it is not a reserved name
+     * - null if it is a reserved name with right email
+     *
+     * @param   string  $author The author
+     * @param   string  $email  The email
+     *
+     * @return  null|bool   The reserved state
+     */
+    public static function isReserved(string $author, string $email): ?bool
     {
-        if (!isset($this->reserved[$author])) {
+        self::init();
+
+        if (!isset(self::$reserved[$author])) {
             return false;
-        } elseif ($this->reserved[$author] != $email) {
+        } elseif (self::$reserved[$author] != $email) {
             return true;
         }
 
         return null;
     }
 
-    # You must do a commit to save this change
-    public function addReserved($author, $email): bool
+    /**
+     * Add a reserved user.
+     *
+     * You must do a Utils::commit() to save this change
+     *
+     * @param   string  $author     The author
+     * @param   string  $email      The email
+     */
+    public static function addReserved(string $author, string $email): void
     {
-        $this->reserved[$author] = $email;
+        self::init();
 
-        return true;
+        self::$reserved[$author] = $email;
     }
 
-    # You must do a commit to save this change
-    public function emptyReserved(): void
+    /**
+     * Clean reserved names list.
+     *
+     * You must do a Utils::commit() to save this change
+     */
+    public static function emptyReserved(): void
     {
-        $this->reserved = [];
+        self::init();
+
+        self::$reserved = [];
     }
 
-    # Return
-    # true if it is known as an unmoderated email else false
-    public function isUnmoderated($email): bool
+    /**
+     * Check if an email is unmoderated.
+     *
+     * Return:
+     * - true if it is known as an unmoderated email
+     * - false else
+     *
+     * @param   string  $email  The email
+     *
+     * @return  bool    The reserved state
+     */
+    public static function isUnmoderated(string $email): bool
     {
-        return in_array($email, $this->unmoderated);
+        self::init();
+
+        return in_array($email, self::$unmoderated);
     }
 
-    # You must do a commit to save this change
-    public function addUnmoderated($email): ?bool
+    /**
+     * Add a unmoderated user.
+     *
+     * You must do a Utils::commit() to save this change
+     *
+     * @param   string  $email      The email
+     */
+    public static function addUnmoderated(string $email): void
     {
-        if (!in_array($email, $this->unmoderated)) {
-            $this->unmoderated[] = $email;
+        self::init();
 
-            return true;
+        if (!in_array($email, self::$unmoderated)) {
+            self::$unmoderated[] = $email;
+        }
+    }
+
+    /**
+     * Clean unmoderated users list.
+     *
+     * You must do a Utils::commit() to save this change
+     */
+    public static function emptyUnmoderated(): void
+    {
+        self::init();
+
+        self::$unmoderated = [];
+    }
+
+    /**
+     * Get posts users.
+     *
+     * @return   array   The users name/email pairs
+     */
+    public static function getPostsUsers(): array
+    {
+        if (is_null(dcCore::app()->blog)) {
+            return [];
         }
 
-        return null;
-    }
+        $rs = dcCore::app()->blog->getPostsUsers();
+        if ($rs->isEmpty()) {
+            return [];
+        }
 
-    # You must do a commit to save this change
-    public function emptyUnmoderated(): void
-    {
-        $this->unmoderated = [];
-    }
-
-    public function getPostsUsers(): array
-    {
         $users = [];
-        $rs    = dcCore::app()->blog->getPostsUsers();
         while ($rs->fetch()) {
             $name = dcUtils::getUserCN(
                 $rs->f('user_id'),
@@ -137,16 +223,41 @@ class Utils
         return $users;
     }
 
-    public function getCommentsUsers(): array
+    /**
+     * Get comments users.
+     *
+     * @return   array   The users name/email pairs
+     */
+    public static function getCommentsUsers(): array
     {
+        if (is_null(dcCore::app()->blog)) {
+            return [];
+        }
+
+        $sql = new SelectStatement();
+        $rs  = $sql->from($sql->as(dcCore::app()->prefix . dcBlog::COMMENT_TABLE_NAME, 'C'))
+            ->columns([
+                'comment_author',
+                'comment_email',
+            ])
+            ->join(
+                (new JoinStatement())
+                    ->left()
+                    ->from($sql->as(dcCore::app()->prefix . dcBlog::POST_TABLE_NAME, 'P'))
+                    ->on('C.post_id = P.post_id')
+                    ->statement()
+            )
+            ->where('blog_id = ' . $sql->quote(dcCore::app()->blog->id))
+            ->and('comment_trackback = 0')
+            ->and("comment_email != ''")
+            ->group('comment_email, comment_author') // Added author to fix postgreSql
+            ->select();
+
+        if (is_null($rs) || $rs->isEmpty()) {
+            return [];
+        }
+
         $users = [];
-        $rs    = $this->con->select(
-            'SELECT comment_author, comment_email ' .
-            'FROM ' . dcCore::app()->prefix . dcBlog::COMMENT_TABLE_NAME . ' C ' .
-            'LEFT JOIN ' . dcCore::app()->prefix . 'post P ON C.post_id=P.post_id ' .
-            "WHERE blog_id='" . $this->blog . "' AND comment_trackback=0 " .
-            'GROUP BY comment_email, comment_author ' // Added author to fix postgreSql
-        );
         while ($rs->fetch()) {
             $users[] = [
                 'name'  => $rs->f('comment_author'),
@@ -157,13 +268,27 @@ class Utils
         return $users;
     }
 
+    /**
+     * Encode settings.
+     *
+     * @param   array|string    $x  The value to encode
+     *
+     * @return  string  The encoded value
+     */
     public static function encode($x): string
     {
         $y = is_array($x) ? $x : [];
 
-        return json_encode($y);
+        return (string) json_encode($y);
     }
 
+    /**
+     * Decode settings.
+     *
+     * @param   string  $x  The value to decode
+     *
+     * @return  array  The decoded value
+     */
     public static function decode($x): array
     {
         $y = json_decode($x, true);
