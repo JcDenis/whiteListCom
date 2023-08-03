@@ -15,7 +15,7 @@ declare(strict_types=1);
 namespace Dotclear\Plugin\whiteListCom;
 
 use dcCore;
-use dcPage;
+use Dotclear\Core\Backend\Notices;
 use Dotclear\Helper\Html\Form\{
     Checkbox,
     Hidden
@@ -91,7 +91,7 @@ class ReservedWhiteList extends SpamFilter
                     Utils::addReserved($name, $_POST['reserved_email'][$i]);
                 }
                 Utils::commit();
-                dcPage::addSuccessNotice(__('Reserved names have been successfully updated.'));
+                Notices::addSuccessNotice(__('Reserved names have been successfully updated.'));
                 Http::redirect($url);
             }
 

@@ -15,7 +15,7 @@ declare(strict_types=1);
 namespace Dotclear\Plugin\whiteListCom;
 
 use dcCore;
-use dcPage;
+use Dotclear\COre\Backend\Notices;
 use Dotclear\Helper\Html\Form\Checkbox;
 use Dotclear\Helper\Html\Html;
 use Dotclear\Helper\Network\Http;
@@ -79,7 +79,7 @@ class UnmoderatedWhiteList extends SpamFilter
                     Utils::addUnmoderated($email);
                 }
                 Utils::commit();
-                dcPage::addSuccessNotice(__('Unmoderated names have been successfully updated.'));
+                Notices::addSuccessNotice(__('Unmoderated names have been successfully updated.'));
                 Http::redirect($url);
             }
             $posts    = Utils::getPostsUsers();

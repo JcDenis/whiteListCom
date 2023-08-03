@@ -47,14 +47,8 @@ class Utils
             return;
         }
 
-        if (is_null(dcCore::app()->blog)) {
-            return;
-        }
-
-        $s = dcCore::app()->blog->settings->get(My::id());
-
-        self::$unmoderated = self::decode($s->get('unmoderated'));
-        self::$reserved    = self::decode($s->get('reserved'));
+        self::$unmoderated = self::decode(My::settings()->get('unmoderated'));
+        self::$reserved    = self::decode(My::settings()->get('reserved'));
 
         self::$init = true;
     }
@@ -64,15 +58,9 @@ class Utils
      */
     public static function commit(): void
     {
-        if (is_null(dcCore::app()->blog)) {
-            return;
-        }
-
         self::init();
 
-        $s = dcCore::app()->blog->settings->get(My::id());
-
-        $s->put(
+        My::settings()->put(
             'unmoderated',
             self::encode(self::$unmoderated),
             'string',
@@ -81,7 +69,7 @@ class Utils
             false
         );
 
-        $s->put(
+        My::settings()->put(
             'reserved',
             self::encode(self::$reserved),
             'string',
