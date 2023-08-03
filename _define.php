@@ -10,7 +10,7 @@
  * @copyright Jean-Christian Denis
  * @copyright GPL-2.0 https://www.gnu.org/licenses/gpl-2.0.html
  */
-if (!defined('DC_RC_PATH') || is_null(dcCore::app()->auth)) {
+if (!defined('DC_RC_PATH')) {
     return null;
 }
 
@@ -18,10 +18,10 @@ $this->registerModule(
     'Whitelist comments',
     'Whitelists for comments moderation',
     'Jean-Christian Denis and Contributors',
-    '1.2.1',
+    '1.3',
     [
         'requires' => [
-            ['core', '2.26'],
+            ['core', '2.27'],
             ['antispam', '2.0'],
         ],
         'permissions' => dcCore::app()->auth->makePermissions([
@@ -30,8 +30,8 @@ $this->registerModule(
         ]),
         'priority'   => 200,
         'type'       => 'plugin',
-        'support'    => 'https://github.com/JcDenis/' . basename(__DIR__),
-        'details'    => 'https://plugins.dotaddict.org/dc2/details/' . basename(__DIR__),
-        'repository' => 'https://raw.githubusercontent.com/JcDenis/' . basename(__DIR__) . '/master/dcstore.xml',
+        'support'    => 'http://gitea.jcdenis.fr/Dotclear/whiteListCom',
+        'details'    => 'http://gitea.jcdenis.fr/Dotclear/whiteListCom/src/branch/master/README.md',
+        'repository' => 'http://gitea.jcdenis.fr/Dotclear/whiteListCom/raw/branch/master/dcstore.xml',
     ]
 );

@@ -1,3 +1,9 @@
+1.2 - 2023.08.03
+- require Dotclear 2.27
+- require PHP 7.4+
+- upgrade to Dotclear 2.27
+- move repository to gitea (testing)
+
 1.2.1 - 2023.05.13
 - require dotclear 2.26
 - cleanup for dotclear 2.26 stable
