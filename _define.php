@@ -18,7 +18,7 @@ $this->registerModule(
     'Whitelist comments',
     'Whitelists for comments moderation',
     'Jean-Christian Denis and Contributors',
-    '1.3',
+    '1.3.1',
     [
         'requires' => [
             ['core', '2.27'],
@@ -30,8 +30,8 @@ $this->registerModule(
         ]),
         'priority'   => 200,
         'type'       => 'plugin',
-        'support'    => 'http://gitea.jcdenis.fr/Dotclear/whiteListCom',
-        'details'    => 'http://gitea.jcdenis.fr/Dotclear/whiteListCom/src/branch/master/README.md',
-        'repository' => 'http://gitea.jcdenis.fr/Dotclear/whiteListCom/raw/branch/master/dcstore.xml',
+        'support'    => 'https://git.dotclear.watch/JcDenis/' . basename(__DIR__) . '/issues',
+        'details'    => 'https://git.dotclear.watch/JcDenis/' . basename(__DIR__) . '/src/branch/master/README.md',
+        'repository' => 'https://git.dotclear.watch/JcDenis/' . basename(__DIR__) . '/raw/branch/master/dcstore.xml',
     ]
 );
