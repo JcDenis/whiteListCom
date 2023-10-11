@@ -8,7 +8,7 @@
 
 ## ABOUT
 
-_tinyPacker_ is a plugin for the open-source web publishing software called [Dotclear](https://www.dotclear.org).
+_whiteListCom_ is a plugin for the open-source web publishing software called [Dotclear](https://www.dotclear.org).
 
 > Set up a list of users which can publish comments without validation and a list of reserved names (pair of nickname / email ).
 
