@@ -1,27 +1,27 @@
 <?php
-/**
- * @brief whiteListCom, a plugin for Dotclear 2
- *
- * @package Dotclear
- * @subpackage Plugin
- *
- * @author Jean-Christian Denis and Contributors
- *
- * @copyright Jean-Christian Denis
- * @copyright GPL-2.0 https://www.gnu.org/licenses/gpl-2.0.html
- */
+
 declare(strict_types=1);
 
 namespace Dotclear\Plugin\whiteListCom;
 
-use dcCore;
-use dcNamespace;
+use Dotclear\App;
 use Dotclear\Core\Process;
 use Exception;
 
+/**
+ * @brief   whiteListCom install class.
+ * @ingroup whiteListCom
+ *
+ * @author      Jean-Christian Denis
+ * @copyright   GPL-2.0 https://www.gnu.org/licenses/gpl-2.0.html
+ */
 class Install extends Process
 {
-    // Module specs
+    /**
+     * Module specs.
+     *
+     * @var     array<int,array<int,string|array>>  $mod_conf
+     */
     private static array $mod_conf = [
         [
             'unmoderated',
@@ -66,7 +66,7 @@ class Install extends Process
 
             return true;
         } catch (Exception $e) {
-            dcCore::app()->error->add($e->getMessage());
+            App::error()->add($e->getMessage());
 
             return false;
         }
@@ -74,25 +74,25 @@ class Install extends Process
 
     public static function growUp(): void
     {
-        $current = dcCore::app()->getVersion(My::id());
+        $current = App::version()->getVersion(My::id());
 
         // Update settings id, ns
         if ($current && version_compare($current, '1.0', '<')) {
-            $record = dcCore::app()->con->select(
-                'SELECT * FROM ' . dcCore::app()->prefix . dcNamespace::NS_TABLE_NAME . ' ' .
+            $record = App::con()->select(
+                'SELECT * FROM ' . App::con()->prefix() . App::blogWorkspace()::NS_TABLE_NAME . ' ' .
                 "WHERE setting_ns = 'whiteListCom' "
             );
 
             while ($record->fetch()) {
                 if (preg_match('/^whiteListCom(.*?)$/', $record->f('setting_id'), $match)) {
                     $value = @unserialize(@base64_decode($record->f('setting_value')));
-                    $cur   = dcCore::app()->con->openCursor(dcCore::app()->prefix . dcNamespace::NS_TABLE_NAME);
+                    $cur   = App::blogWorkspace()->openBlogWorkspaceCursor();
                     $cur->setField('setting_id', $match[1]);
                     $cur->setField('setting_ns', My::id());
                     $cur->setField('setting_value', is_array($value) ? json_encode($value) : '[]');
                     $cur->update(
                         "WHERE setting_id = '" . $record->f('setting_id') . "' and setting_ns = 'whiteListCom' " .
-                        'AND blog_id ' . (null === $record->f('blog_id') ? 'IS NULL ' : ("= '" . dcCore::app()->con->escapeStr((string) $record->f('blog_id')) . "' "))
+                        'AND blog_id ' . (null === $record->f('blog_id') ? 'IS NULL ' : ("= '" . App::con()->escapeStr((string) $record->f('blog_id')) . "' "))
                     );
                 }
             }

@@ -1,41 +1,43 @@
 <?php
-/**
- * @brief whiteListCom, a plugin for Dotclear 2
- *
- * @package Dotclear
- * @subpackage Plugin
- *
- * @author Jean-Christian Denis and Contributors
- *
- * @copyright Jean-Christian Denis
- * @copyright GPL-2.0 https://www.gnu.org/licenses/gpl-2.0.html
- */
+
 declare(strict_types=1);
 
 namespace Dotclear\Plugin\whiteListCom;
 
-use dcBlog;
-use dcCore;
-use dcUtils;
+use Dotclear\App;
 use Dotclear\Database\Statement\{
     JoinStatement,
     SelectStatement,
 };
 
 /**
- * @ingroup DC_PLUGIN_WHITELISTCOM
- * @brief White list filters methods
- * @since 2.6
+ * @brief   whiteListCom utils.
+ * @ingroup whiteListCom
+ *
+ * @author      Jean-Christian Denis
+ * @copyright   GPL-2.0 https://www.gnu.org/licenses/gpl-2.0.html
  */
 class Utils
 {
-    /** @var    bool    $init   preload check */
+    /**
+     * Preload check.
+     *
+     *  @var    bool    $init
+     */
     private static bool $init = false;
 
-    /** @var    array   $unmoderated    List of unmoderated users */
+    /**
+     * List of unmoderated users.
+     *
+     * @var     array<int,string>   $unmoderated
+     */
     private static array $unmoderated = [];
 
-    /** @var    array   $unmoderated    List of reserved name */
+    /**
+     * List of reserved name.
+     *
+     * @var     array<string,string>    $reserved
+     */
     private static array $reserved = [];
 
     /**
@@ -185,18 +187,18 @@ class Utils
      */
     public static function getPostsUsers(): array
     {
-        if (is_null(dcCore::app()->blog)) {
+        if (!App::blog()->isDefined()) {
             return [];
         }
 
-        $rs = dcCore::app()->blog->getPostsUsers();
+        $rs = App::blog()->getPostsUsers();
         if ($rs->isEmpty()) {
             return [];
         }
 
         $users = [];
         while ($rs->fetch()) {
-            $name = dcUtils::getUserCN(
+            $name = App::users()->getUserCN(
                 $rs->f('user_id'),
                 $rs->f('user_name'),
                 $rs->f('user_firstname'),
@@ -218,12 +220,12 @@ class Utils
      */
     public static function getCommentsUsers(): array
     {
-        if (is_null(dcCore::app()->blog)) {
+        if (!App::blog()->isDefined()) {
             return [];
         }
 
         $sql = new SelectStatement();
-        $rs  = $sql->from($sql->as(dcCore::app()->prefix . dcBlog::COMMENT_TABLE_NAME, 'C'))
+        $rs  = $sql->from($sql->as(App::con()->prefix() . App::blog()::COMMENT_TABLE_NAME, 'C'))
             ->columns([
                 'comment_author',
                 'comment_email',
@@ -231,11 +233,11 @@ class Utils
             ->join(
                 (new JoinStatement())
                     ->left()
-                    ->from($sql->as(dcCore::app()->prefix . dcBlog::POST_TABLE_NAME, 'P'))
+                    ->from($sql->as(App::con()->prefix() . App::blog()::POST_TABLE_NAME, 'P'))
                     ->on('C.post_id = P.post_id')
                     ->statement()
             )
-            ->where('blog_id = ' . $sql->quote(dcCore::app()->blog->id))
+            ->where('blog_id = ' . $sql->quote(App::blog()->id()))
             ->and('comment_trackback = 0')
             ->and("comment_email != ''")
             ->group('comment_email, comment_author') // Added author to fix postgreSql

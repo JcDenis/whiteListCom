@@ -1,21 +1,11 @@
 <?php
-/**
- * @brief whiteListCom, a plugin for Dotclear 2
- *
- * @package Dotclear
- * @subpackage Plugin
- *
- * @author Jean-Christian Denis and Contributors
- *
- * @copyright Jean-Christian Denis
- * @copyright GPL-2.0 https://www.gnu.org/licenses/gpl-2.0.html
- */
+
 declare(strict_types=1);
 
 namespace Dotclear\Plugin\whiteListCom;
 
-use dcCore;
-use Dotclear\COre\Backend\Notices;
+use Dotclear\App;
+use Dotclear\Core\Backend\Notices;
 use Dotclear\Helper\Html\Form\Checkbox;
 use Dotclear\Helper\Html\Html;
 use Dotclear\Helper\Network\Http;
@@ -23,21 +13,18 @@ use Dotclear\Plugin\antispam\SpamFilter;
 use Exception;
 
 /**
- * @ingroup DC_PLUGIN_WHITELISTCOM
- * @brief Filter for unmoderated authors.
- * @since 2.6
+ * @brief   whiteListCom unmoderated antispam filter.
+ * @ingroup whiteListCom
  *
- * This filter is used only if comments are moderates
+ * @author      Jean-Christian Denis
+ * @copyright   GPL-2.0 https://www.gnu.org/licenses/gpl-2.0.html
  */
 class UnmoderatedWhiteList extends SpamFilter
 {
-    public $name    = 'Unmoderated authors';
-    public $has_gui = true;
+    public string $name  = 'Unmoderated authors';
+    public bool $has_gui = true;
 
-    /**
-     * @return  void
-     */
-    protected function setInfo()
+    protected function setInfo(): void
     {
         $this->name        = __('Unmoderated authors');
         $this->description = __('Whitelist of unmoderated authors');
@@ -46,11 +33,11 @@ class UnmoderatedWhiteList extends SpamFilter
     /**
      * @return  void|null|bool
      */
-    public function isSpam($type, $author, $email, $site, $ip, $content, $post_id, &$status)
+    public function isSpam(string $type, ?string $author, ?string $email, ?string $site, ?string $ip, ?string $content, ?int $post_id, string &$status)
     {
         if ($type != 'comment'
-         || dcCore::app()->blog === null
-         || dcCore::app()->blog->settings->get('system')->get('comments_pub')) {
+         || !App::blog()->isDefined()
+         || App::blog()->settings()->get('system')->get('comments_pub')) {
             return null;
         }
 
@@ -85,12 +72,12 @@ class UnmoderatedWhiteList extends SpamFilter
             $posts    = Utils::getPostsUsers();
             $comments = Utils::getCommentsUsers();
         } catch (Exception $e) {
-            dcCore::app()->error->add($e->getMessage());
+            App::error()->add($e->getMessage());
         }
 
         $res = '';
 
-        if (!is_null(dcCore::app()->blog) && dcCore::app()->blog->settings->get('system')->get('comments_pub')) {
+        if (App::blog()->isDefined() && App::blog()->settings()->get('system')->get('comments_pub')) {
             $res .= '<p class="message">' .
             __('This filter is used only if comments are moderates') .
             '</p>';
@@ -141,7 +128,7 @@ class UnmoderatedWhiteList extends SpamFilter
         '</div>' .
         '</div>' .
         '<p><input type="submit" id="update_unmoderated" name="update_unmoderated" value="' . __('Save') . '" />' .
-        dcCore::app()->formNonce() . '</p>' .
+        App::nonce()->getFormNonce() . '</p>' .
         '</form>';
 
         return $res;

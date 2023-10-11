@@ -1,3 +1,9 @@
+whiteListCom 1.4 - 2023.10.11
+===========================================================
+* Require Dotclear 2.27
+* Require PHP 8.1
+* Upgrade to Dotclear 2.28
+
 whiteListCom 1.3.1 - 2023.08.13
 ===========================================================
 * Require Dotclear 2.27
