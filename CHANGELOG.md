@@ -1,6 +1,12 @@
+whiteListCom 1.4.1 - 2023.10.14
+===========================================================
+* Require Dotclear 2.28
+* Require PHP 8.1
+* Do not required plugin antispam from define (easier safe_mode update)
+
 whiteListCom 1.4 - 2023.10.11
 ===========================================================
-* Require Dotclear 2.27
+* Require Dotclear 2.28
 * Require PHP 8.1
 * Upgrade to Dotclear 2.28
 

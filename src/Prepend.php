@@ -35,7 +35,10 @@ class Prepend extends Process
                 $spamfilters[] = ReservedWhiteList::class;
             },
             'publicAfterCommentCreate' => function (Cursor $cur, int $id): void {
-                if (!App::blog()->isDefined() || App::blog()->settings()->get('system')->get('comments_pub')) {
+                if (!App::blog()->isDefined()
+                    || !App::plugins()->moduleExists('antispam')
+                    || App::blog()->settings()->get('system')->get('comments_pub')
+                ) {
                     return;
                 }
 
