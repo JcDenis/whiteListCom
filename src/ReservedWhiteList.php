@@ -87,7 +87,7 @@ class ReservedWhiteList extends SpamFilter
         }
 
         $res = '<form action="' . Html::escapeURL($url) . '" method="post">' .
-        '<p>' . __('Check the users who can make comments without being moderated.') . '</p>' .
+        '<p>' . __('Check the users who have a reserved name (link to an email).') . '</p>' .
         '<div class="table-outer">' .
         '<table class="clear">' .
         '<caption>' . __('Comments authors list') . '</caption>' .
