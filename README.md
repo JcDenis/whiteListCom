@@ -31,8 +31,8 @@ Note: User must write a comment before able to be added to the list.
 
 * [License](https://github.com/JcDenis/whiteListCom/src/branch/master/LICENSE)
 * [Packages & details](https://github.com/JcDenis/whiteListCom/releases) (or on [Dotaddict](https://plugins.dotaddict.org/dc2/details/whiteListCom))
-* [Sources & contributions](https://github.com/JcDenis/whiteListCom) (or on [GitHub](https://github.com/JcDenis/whiteListCom))
-* [Issues & security](https://github.com/JcDenis/whiteListCom/issues) (or on [GitHub](https://github.com/JcDenis/whiteListCom/issues))
+* [Sources & contributions](https://github.com/JcDenis/whiteListCom)
+* [Issues & security](https://github.com/JcDenis/whiteListCom/issues)
 
 ## CONTRIBUTORS
 
