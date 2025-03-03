@@ -1,3 +1,9 @@
+whiteListCom 1.4.3 - 2025.03.03
+===========================================================
+* Require Dotclear 2.28
+* Require PHP 8.1
+* Fix repository URLs
+
 whiteListCom 1.4.2 - 2024.12.06
 ===========================================================
 * Require Dotclear 2.28
