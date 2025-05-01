@@ -1,3 +1,10 @@
+whiteListCom 1.5.1 - 2025.05.02
+===========================================================
+* Require Dotclear 2.28
+* Require PHP 8.1
+* Always stop next filters if user is unmoderated
+* Use Helper/Form
+
 whiteListCom 1.5 - 2025.05.01
 ===========================================================
 * Require Dotclear 2.28
