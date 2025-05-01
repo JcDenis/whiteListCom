@@ -29,16 +29,23 @@ class Utils
     /**
      * List of unmoderated users.
      *
-     * @var     array<int,string>   $unmoderated
+     * @var     array<int|string,string>   $unmoderated
      */
     private static array $unmoderated = [];
 
     /**
      * List of reserved name.
      *
-     * @var     array<string,string>    $reserved
+     * @var     array<int|string,string>    $reserved
      */
     private static array $reserved = [];
+
+    /**
+     * Stop submission on reserved name.
+     *
+     * @var     bool    $stopreserved
+     */
+    private static bool $stopreserved = false;
 
     /**
      * Initialize properties.
@@ -49,8 +56,9 @@ class Utils
             return;
         }
 
-        self::$unmoderated = self::decode(My::settings()->get('unmoderated'));
-        self::$reserved    = self::decode(My::settings()->get('reserved'));
+        self::$unmoderated  = self::decode(My::settings()->get('unmoderated'));
+        self::$reserved     = self::decode(My::settings()->get('reserved'));
+        self::$stopreserved = (bool) My::settings()->get('stopreserved');
 
         self::$init = true;
     }
@@ -76,6 +84,15 @@ class Utils
             self::encode(self::$reserved),
             'string',
             'Whitelist of reserved names on comments',
+            true,
+            false
+        );
+
+        My::settings()->put(
+            'stopreserved',
+            self::$stopreserved,
+            'boolean',
+            'Stop submission rather than mark as spam',
             true,
             false
         );
@@ -135,6 +152,28 @@ class Utils
     }
 
     /**
+     * Check if submission stop on reserved name.
+     */
+    public static function stopReserved(): bool
+    {
+        self::init();
+
+        return self::$stopreserved;
+    }
+
+    /**
+     * Set submission stop on reserved name.
+     *
+     * You must do a Utils::commit() to save this change
+     */
+    public static function setStopReserved(bool $stop): void
+    {
+        self::init();
+
+        self::$stopreserved = $stop;
+    }
+
+    /**
      * Check if an email is unmoderated.
      *
      * Return:
@@ -183,7 +222,7 @@ class Utils
     /**
      * Get posts users.
      *
-     * @return   array   The users name/email pairs
+     * @return   array<int, array<string,string>>   The users name/email pairs
      */
     public static function getPostsUsers(): array
     {
@@ -216,7 +255,7 @@ class Utils
     /**
      * Get comments users.
      *
-     * @return   array   The users name/email pairs
+     * @return   array<int, array<string,string>>   The users name/email pairs
      */
     public static function getCommentsUsers(): array
     {
@@ -261,7 +300,7 @@ class Utils
     /**
      * Encode settings.
      *
-     * @param   array|string    $x  The value to encode
+     * @param   array<int|string,string>|string    $x  The value to encode
      *
      * @return  string  The encoded value
      */
@@ -277,7 +316,7 @@ class Utils
      *
      * @param   string  $x  The value to decode
      *
-     * @return  array  The decoded value
+     * @return  array<int|string,string>    The decoded value
      */
     public static function decode($x): array
     {

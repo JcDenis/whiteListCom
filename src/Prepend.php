@@ -31,24 +31,21 @@ class Prepend extends Process
 
         App::behavior()->addBehaviors([
             'AntispamInitFilters' => function (ArrayObject $spamfilters): void {
-                $spamfilters[] = UnmoderatedWhiteList::class;
                 $spamfilters[] = ReservedWhiteList::class;
+                $spamfilters[] = UnmoderatedWhiteList::class;
             },
             'publicAfterCommentCreate' => function (Cursor $cur, int $id): void {
-                if (!App::blog()->isDefined()
-                    || !App::plugins()->moduleExists('antispam')
-                    || App::blog()->settings()->get('system')->get('comments_pub')
+                if (App::blog()->isDefined()
+                    && App::plugins()->moduleExists('antispam')
+                    && !App::blog()->settings()->get('system')->get('comments_pub')
+                    && $cur->getField('comment_spam_filter') == 'UnmoderatedWhiteList'
+                    && $cur->getField('comment_spam_status') == __('Unmoderated authors')
                 ) {
-                    return;
-                }
-
-                if ($cur->__get('comment_spam_filter') == 'UnmoderatedWhiteList'
-                 && $cur->__get('comment_spam_status') == 'unmoderated') {
                     App::con()->writeLock(App::con()->prefix() . App::blog()::COMMENT_TABLE_NAME);
 
-                    $cur->__set('comment_status', 1);
-                    $cur->__set('comment_spam_status', 0);
-                    $cur->__set('comment_spam_filter', 0);
+                    $cur->setField('comment_status', 1);
+                    $cur->setField('comment_spam_status', 0);
+                    $cur->setField('comment_spam_filter', 0);
                     $cur->update('WHERE comment_id = ' . $id . ' ');
 
                     App::con()->unlock();

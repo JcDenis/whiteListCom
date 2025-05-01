@@ -31,27 +31,23 @@ class UnmoderatedWhiteList extends SpamFilter
     }
 
     /**
-     * @return  void|null|bool
+     * @return  null|true
      */
     public function isSpam(string $type, ?string $author, ?string $email, ?string $site, ?string $ip, ?string $content, ?int $post_id, string &$status)
     {
-        if ($type != 'comment'
-         || !App::blog()->isDefined()
-         || App::blog()->settings()->get('system')->get('comments_pub')) {
-            return null;
+        if ($type == 'comment'
+            && Utils::isUnmoderated((string) $email)
+            && !App::blog()->settings()->get('system')->get('comments_pub')
+        ) {
+            $status = $this->name;
+
+            # Mark as spam to change status later and stop filters
+            # To check email/author couple use filter RerservedWhiteList before
+            return true;
         }
 
-        try {
-            if (Utils::isUnmoderated($email)) {
-                $status = 'unmoderated';
-
-                # return true in order to change comment_status after
-                return true;
-            }
-
-            return null;
-        } catch (Exception $e) {
-        }
+        # Go through others filters
+        return null;
     }
 
     public function gui(string $url): string

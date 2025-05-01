@@ -6,10 +6,7 @@ namespace Dotclear\Plugin\whiteListCom;
 
 use Dotclear\App;
 use Dotclear\Core\Backend\Notices;
-use Dotclear\Helper\Html\Form\{
-    Checkbox,
-    Hidden
-};
+use Dotclear\Helper\Html\Form\{ Caption, Checkbox, Div, Form, Hidden, Label, Para, Submit, Table, Tbody, Td, Text, Th, Thead, Tr };
 use Dotclear\Helper\Html\Html;
 use Dotclear\Helper\Network\Http;
 use Dotclear\Plugin\antispam\SpamFilter;
@@ -34,36 +31,26 @@ class ReservedWhiteList extends SpamFilter
     }
 
     /**
-     * @return  void|null|bool
+     * @return  null|true
      */
     public function isSpam(string $type, ?string $author, ?string $email, ?string $site, ?string $ip, ?string $content, ?int $post_id, string &$status)
     {
-        if ($type != 'comment') {
-            return null;
-        }
+        if ($type == 'comment' 
+            && true === Utils::isReserved((string) $author, (string) $email)
+        ) {
+            $status = $this->name;
 
-        $throw = false;
-
-        try {
-            if (true === Utils::isReserved($author, $email)) {
-                $status = 'reserved name';
-                //return true;
-                $throw = true;
-            } else {
-                return null;
+            if (Utils::stopReserved()) {
+                # This message is show to author even if comments are moderated, comment is not saved
+                throw new Exception(__('This name is reserved to an other user.'));
             }
-        } catch (Exception $e) {
+
+            # Mark as spam and stop filters
+            return true;
         }
 
-        # This message is show to author even if comments are moderated, comment is not saved
-        if ($throw) {
-            throw new Exception(__('This name is reserved to an other user.'));
-        }
-    }
-
-    public function getStatusMessage(string $status, ?int $comment_id): string
-    {
-        return __('This name is reserved to an other user.');
+        # Go through others filters
+        return null;
     }
 
     public function gui(string $url): string
@@ -76,6 +63,7 @@ class ReservedWhiteList extends SpamFilter
                 foreach ($_POST['reserved'] as $i => $name) {
                     Utils::addReserved($name, $_POST['reserved_email'][$i]);
                 }
+                Utils::setStopReserved(!empty($_POST['reserved_stop']));
                 Utils::commit();
                 Notices::addSuccessNotice(__('Reserved names have been successfully updated.'));
                 Http::redirect($url);
@@ -86,33 +74,59 @@ class ReservedWhiteList extends SpamFilter
             App::error()->add($e->getMessage());
         }
 
-        $res = '<form action="' . Html::escapeURL($url) . '" method="post">' .
-        '<p>' . __('Check the users who have a reserved name (link to an email).') . '</p>' .
-        '<div class="table-outer">' .
-        '<table class="clear">' .
-        '<caption>' . __('Comments authors list') . '</caption>' .
-        '<thead><tr><th>' . __('Author') . '</th><th>' . __('Email') . '</th></tr></thead>' .
-        '<tbody>';
-
-        $i = 0;
+        $rows = [];
         foreach ($comments as $user) {
             $checked = null === Utils::isReserved($user['name'], $user['email']);
-            $res .= '<tr class="line' . ($checked ? '' : ' offline') . '">' .
-            '<td class="nowrap">' .
-            (new Checkbox(['reserved[' . $i . ']'], $checked))->value($user['name'])->render() .
-            (new Hidden(['reserved_email[' . $i . ']'], $user['email']))->render() .
-            ' ' . $user['name'] . '</td>' .
-            '<td class="nowrap maximal">' . $user['email'] . '</td>' .
-            '</tr>';
-            $i++;
+
+            $rows[] = (new Tr())
+                ->class('line')
+                ->cols([
+                    (new Td())
+                        ->class('nowrap')
+                        ->items([
+                            (new Checkbox(['reserved[' . (count($rows) + 1) . ']'], $checked))
+                                ->value($user['name'])
+                                ->label(new label($user['name'], Label::IL_FT)),
+                            new Hidden(['reserved_email[' . (count($rows) + 1) . ']'], $user['email']),
+                        ]),
+                    (new Td())
+                        ->class(['maximal','nowrap'])
+                        ->text($user['email'])
+                ]);
         }
 
-        $res .= '</tbody>' .
-        '</table>' .
-        '<p><input type="submit" name="update_reserved" value="' . __('Save') . '" />' .
-        App::nonce()->getFormNonce() . '</p>' .
-        '</form>';
-
-        return $res;
+        return (new Form('update_reserved_form'))
+            ->method('post')
+            ->action($url)
+            ->fields([
+                new Text('p', __('Check the users who have a reserved name (link to an email).')),
+                (new Div())
+                    ->class('table-outer')
+                    ->items([
+                        (new Table())
+                            ->caption(new Caption(__('Comments authors list') ))
+                            ->thead((new Thead())
+                                ->rows([(new Tr())
+                                    ->cols([
+                                        (new Th())->text(__('Author')),
+                                        (new Th())->text(__('Email'))
+                                    ])
+                                ])
+                            )
+                            ->tbody((new Tbody())->rows($rows)),
+                    ]),
+                (new Para())
+                    ->items([
+                        (new Checkbox('reserved_stop', Utils::stopReserved()))
+                            ->value(1)
+                            ->label(new label(__('Stop comment submission instead of mark it as spam'), Label::IL_FT)),
+                    ]),
+                (new Para())
+                    ->items([
+                        App::nonce()->formNonce(),
+                        new Submit('update_reserved', __('Save')),
+                    ]),
+            ])
+            ->render();
     }
 }

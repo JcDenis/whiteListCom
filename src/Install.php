@@ -20,7 +20,7 @@ class Install extends Process
     /**
      * Module specs.
      *
-     * @var     array<int,array<int,string|array>>  $mod_conf
+     * @var     array<int, mixed>   $mod_conf
      */
     private static array $mod_conf = [
         [
@@ -34,6 +34,12 @@ class Install extends Process
             '[]',
             'string',
             'Whitelist of reserved names on comments',
+        ],
+        [
+            'stopreserved',
+            true,
+            'boolean',
+            'Stop submission rather than mark as spam',
         ],
     ];
 
