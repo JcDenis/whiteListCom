@@ -1,3 +1,11 @@
+whiteListCom 1.5 - 2025.05.01
+===========================================================
+* Require Dotclear 2.28
+* Require PHP 8.1
+* Fix filters
+* Add option to stop submission on reserved name
+* Use Helper/Form
+
 whiteListCom 1.4.3 - 2025.03.03
 ===========================================================
 * Require Dotclear 2.28

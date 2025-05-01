@@ -8,7 +8,7 @@
 
 ## ABOUT
 
-_whiteListCom_ is a plugin for the open-source web publishing software called [Dotclear](https://www.dotclear.org).
+__whiteListCom__ is a plugin for the open-source web publishing software called [Dotclear](https://www.dotclear.org).
 
 > Set up a list of users which can publish comments without validation and a list of reserved names (pair of nickname / email ).
 
@@ -20,11 +20,12 @@ _whiteListCom_ is a plugin for the open-source web publishing software called [D
 
 ## USAGE
 
-First install _whiteListCom_, manualy from a zip package or from 
+First install __whiteListCom__, manualy from a zip package or from 
 Dotaddict repository. (See Dotclear's documentation to know how do this)
 
-Enable and configure "Unmoderated authors" of "Reserved names" 
-from antispam manager.
+Enable and configure _Reserved names_ and/or _Unmoderated authors_ from antispam manager. 
+You must put _Reserved names_ antispam filter before _Unmoderated authors_ antispam filter as this last one is based on email only.
+
 Note: User must write a comment before able to be added to the list.
 
 ## LINKS
