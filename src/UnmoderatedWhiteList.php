@@ -6,7 +6,7 @@ namespace Dotclear\Plugin\whiteListCom;
 
 use Dotclear\App;
 use Dotclear\Core\Backend\Notices;
-use Dotclear\Helper\Html\Form\Checkbox;
+use Dotclear\Helper\Html\Form\{ Caption, Checkbox, Div, Form, Label, Para, Submit, Table, Tbody, Td, Text, Th, Thead, Tr };
 use Dotclear\Helper\Html\Html;
 use Dotclear\Helper\Network\Http;
 use Dotclear\Plugin\antispam\SpamFilter;
@@ -37,7 +37,6 @@ class UnmoderatedWhiteList extends SpamFilter
     {
         if ($type == 'comment'
             && Utils::isUnmoderated((string) $email)
-            && !App::blog()->settings()->get('system')->get('comments_pub')
         ) {
             $status = $this->name;
 
@@ -71,62 +70,88 @@ class UnmoderatedWhiteList extends SpamFilter
             App::error()->add($e->getMessage());
         }
 
-        $res = '';
-
-        if (App::blog()->isDefined() && App::blog()->settings()->get('system')->get('comments_pub')) {
-            $res .= '<p class="message">' .
-            __('This filter is used only if comments are moderates') .
-            '</p>';
-        }
-
-        $res .= '<form action="' . Html::escapeURL($url) . '" method="post">' .
-        '<p>' . __('Check the users who can make comments without being moderated.') . '</p>' .
-        '<div class="two-boxes">' .
-        '<div class="box odd">' .
-        '<div class="table-outer">' .
-        '<table class="clear">' .
-        '<caption>' . __('Posts authors list') . '</caption>' .
-        '<thead><tr><th>' . __('Name') . '</th><th>' . __('Email') . '</th></tr></thead>' .
-        '<tbody>';
-
+        $rows_post = $rows_comment = [];
         foreach ($posts as $user) {
             $checked = Utils::isUnmoderated($user['email']);
-            $res .= '<tr class="line' . ($checked ? '' : ' offline') . '">' .
-            '<td class="nowrap">' .
-            (new Checkbox(['unmoderated[]'], $checked))->value($user['email'])->render() .
-            ' ' . $user['name'] . '</td>' .
-            '<td class="nowrap">' . $user['email'] . '</td>' .
-            '</tr>';
+
+            $rows_post[] = (new Tr())
+                ->class('line' . ($checked ? '' : ' offline'))
+                ->cols([
+                    (new Td())
+                        ->class('nowrap')
+                        ->items([
+                            (new Checkbox(['unmoderated[]'], $checked))
+                                ->value($user['email'])
+                                ->label(new label($user['name'], Label::IL_FT)),
+                        ]),
+                    (new Td())
+                        ->class('nowrap')
+                        ->text($user['email'])
+                ]);
         }
-
-        $res .= '</tbody>' .
-        '</table></div>' .
-        '</div>' .
-        '<div class="box even">' .
-        '<div class="table-outer">' .
-        '<table class="clear">' .
-        '<caption>' . __('Comments authors list') . '</caption>' .
-        '<thead><tr><th>' . __('Author') . '</th><th>' . __('Email') . '</th></tr></thead>' .
-        '<tbody>';
-
         foreach ($comments as $user) {
             $checked = Utils::isUnmoderated($user['email']);
-            $res .= '<tr class="line' . ($checked ? '' : ' offline') . '">' .
-            '<td class="nowrap">' .
-            (new Checkbox(['unmoderated[]'], $checked))->value($user['email'])->render() .
-            ' ' . $user['name'] . '</td>' .
-            '<td class="nowrap">' . $user['email'] . '</td>' .
-            '</tr>';
+            $rows_comment[] = (new Tr())
+                ->class('line' . ($checked ? '' : ' offline'))
+                ->cols([
+                    (new Td())
+                        ->class('nowrap')
+                        ->items([
+                            (new Checkbox(['unmoderated[]'], $checked))
+                                ->value($user['email'])
+                                ->label(new label($user['name'], Label::IL_FT)),
+                        ]),
+                    (new Td())
+                        ->class('nowrap')
+                        ->text($user['email'])
+                ]);
         }
 
-        $res .= '</tbody>' .
-        '</table></div>' .
-        '</div>' .
-        '</div>' .
-        '<p><input type="submit" id="update_unmoderated" name="update_unmoderated" value="' . __('Save') . '" />' .
-        App::nonce()->getFormNonce() . '</p>' .
-        '</form>';
-
-        return $res;
+        return (new Form('update_unmoderated_form'))
+            ->method('post')
+            ->action($url)
+            ->fields([
+                (new Text('p',__('Check the users who can make comments without being moderated.'))),
+                (new Div())
+                    ->class('one-box')
+                    ->items([
+                        (new Div())
+                            ->class(['two-boxes'])
+                            ->items([
+                                (new Table())
+                                    ->caption(new Caption(__('Posts authors list') ))
+                                    ->thead((new Thead())
+                                        ->rows([(new Tr())
+                                            ->cols([
+                                                (new Th())->text(__('Author')),
+                                                (new Th())->text(__('Email'))
+                                            ])
+                                        ])
+                                    )
+                                    ->tbody((new Tbody())->rows($rows_post)),
+                            ]),
+                        (new Div())
+                            ->class(['two-boxes'])
+                            ->items([
+                                (new Table())
+                                    ->caption(new Caption(__('Comments authors list') ))
+                                    ->thead((new Thead())
+                                        ->rows([(new Tr())
+                                            ->cols([
+                                                (new Th())->text(__('Author')),
+                                                (new Th())->text(__('Email'))
+                                            ])
+                                        ])
+                                    )
+                                    ->tbody((new Tbody())->rows($rows_comment)),
+                            ]),
+                    ]),
+                (new Para())
+                    ->items([
+                        App::nonce()->formNonce(),
+                        new Submit('update_unmoderated', __('Save')),
+                    ]),
+            ])
+            ->render();
     }
 }

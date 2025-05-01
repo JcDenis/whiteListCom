@@ -37,7 +37,6 @@ class Prepend extends Process
             'publicAfterCommentCreate' => function (Cursor $cur, int $id): void {
                 if (App::blog()->isDefined()
                     && App::plugins()->moduleExists('antispam')
-                    && !App::blog()->settings()->get('system')->get('comments_pub')
                     && $cur->getField('comment_spam_filter') == 'UnmoderatedWhiteList'
                     && $cur->getField('comment_spam_status') == __('Unmoderated authors')
                 ) {
