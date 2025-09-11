@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace Dotclear\Plugin\whiteListCom;
 
 use Dotclear\App;
-use Dotclear\Core\Process;
+use Dotclear\Helper\Process\TraitProcess;
 use Exception;
 
 /**
@@ -15,8 +15,10 @@ use Exception;
  * @author      Jean-Christian Denis
  * @copyright   GPL-2.0 https://www.gnu.org/licenses/gpl-2.0.html
  */
-class Install extends Process
+class Install
 {
+    use TraitProcess;
+
     /**
      * Module specs.
      *
@@ -84,8 +86,8 @@ class Install extends Process
 
         // Update settings id, ns
         if ($current && version_compare($current, '1.0', '<')) {
-            $record = App::con()->select(
-                'SELECT * FROM ' . App::con()->prefix() . App::blogWorkspace()::NS_TABLE_NAME . ' ' .
+            $record = App::db()->con()->select(
+                'SELECT * FROM ' . App::db()->con()->prefix() . App::blogWorkspace()::NS_TABLE_NAME . ' ' .
                 "WHERE setting_ns = 'whiteListCom' "
             );
 
@@ -98,7 +100,7 @@ class Install extends Process
                     $cur->setField('setting_value', is_array($value) ? json_encode($value) : '[]');
                     $cur->update(
                         "WHERE setting_id = '" . $record->f('setting_id') . "' and setting_ns = 'whiteListCom' " .
-                        'AND blog_id ' . (null === $record->f('blog_id') ? 'IS NULL ' : ("= '" . App::con()->escapeStr((string) $record->f('blog_id')) . "' "))
+                        'AND blog_id ' . (null === $record->f('blog_id') ? 'IS NULL ' : ("= '" . App::db()->con()->escapeStr((string) $record->f('blog_id')) . "' "))
                     );
                 }
             }

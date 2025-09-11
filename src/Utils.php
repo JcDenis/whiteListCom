@@ -5,10 +5,8 @@ declare(strict_types=1);
 namespace Dotclear\Plugin\whiteListCom;
 
 use Dotclear\App;
-use Dotclear\Database\Statement\{
-    JoinStatement,
-    SelectStatement,
-};
+use Dotclear\Database\Statement\JoinStatement;
+use Dotclear\Database\Statement\SelectStatement;
 
 /**
  * @brief   whiteListCom utils.
@@ -264,7 +262,7 @@ class Utils
         }
 
         $sql = new SelectStatement();
-        $rs  = $sql->from($sql->as(App::con()->prefix() . App::blog()::COMMENT_TABLE_NAME, 'C'))
+        $rs  = $sql->from($sql->as(App::db()->con()->prefix() . App::blog()::COMMENT_TABLE_NAME, 'C'))
             ->columns([
                 'comment_author',
                 'comment_email',
@@ -272,7 +270,7 @@ class Utils
             ->join(
                 (new JoinStatement())
                     ->left()
-                    ->from($sql->as(App::con()->prefix() . App::blog()::POST_TABLE_NAME, 'P'))
+                    ->from($sql->as(App::db()->con()->prefix() . App::blog()::POST_TABLE_NAME, 'P'))
                     ->on('C.post_id = P.post_id')
                     ->statement()
             )

@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace Dotclear\Plugin\whiteListCom;
 
 use Dotclear\App;
-use Dotclear\Core\Process;
+use Dotclear\Helper\Process\TraitProcess;
 use Dotclear\Database\Cursor;
 
 /**
@@ -15,8 +15,10 @@ use Dotclear\Database\Cursor;
  * @author      Jean-Christian Paul Denis
  * @copyright   AGPL-3.0
  */
-class Backend extends Process
+class Backend
 {
+    use TraitProcess;
+
     public static function init(): bool
     {
         return self::status(My::checkContext(My::BACKEND));
