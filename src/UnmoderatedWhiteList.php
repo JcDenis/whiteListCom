@@ -46,7 +46,7 @@ class UnmoderatedWhiteList extends SpamFilter
     /**
      * @return  null|true
      */
-    public function isSpam(string $type, ?string $author, ?string $email, ?string $site, ?string $ip, ?string $content, ?int $post_id, string &$status)
+    public function isSpam(string $type, ?string $author, ?string $email, ?string $site, ?string $ip, ?string $content, ?int $post_id, string &$status): ?bool
     {
         if ($type == 'comment'
             && Utils::isUnmoderated((string) $email)
