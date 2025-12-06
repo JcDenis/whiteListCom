@@ -2,11 +2,11 @@
 <modules xmlns:da="http://dotaddict.org/da/">
   <module id="whiteListCom">
     <name>Whitelist comments</name>
-    <version>1.6</version>
+    <version>1.7</version>
     <author>Jean-Christian Denis and Contributors</author>
     <desc>Whitelists for comments moderation</desc>
-    <file>https://github.com/JcDenis/whiteListCom/releases/download/v1.6/plugin-whiteListCom.zip</file>
-    <da:dcmin>2.36</da:dcmin>
+    <file>https://github.com/JcDenis/whiteListCom/releases/download/v1.7/plugin-whiteListCom.zip</file>
+    <da:dcmin>2.37</da:dcmin>
     <da:details>https://github.com/JcDenis/whiteListCom/src/branch/master/README.md</da:details>
     <da:support>https://github.com/JcDenis/whiteListCom/issues</da:support>
   </module>
