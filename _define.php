@@ -21,7 +21,7 @@ $this->registerModule(
     'Whitelist comments',
     'Whitelists for comments moderation',
     'Jean-Christian Denis and Contributors',
-    '1.7',
+    '1.8',
     [
         'requires'    => [['core', '2.39']],
         'permissions' => 'My',

@@ -1,3 +1,8 @@
+whiteListCom 1.8 - 2026.11.05
+===========================================================
+* Bump Dotclear from 2.37 to 2.39
+* Code review (phpstan max)
+
 whiteListCom 1.7 - 2025.12.06
 ===========================================================
 * Bump Dotclear from 2.36 to 2.37
