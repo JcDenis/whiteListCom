@@ -13,13 +13,17 @@
  */
 declare(strict_types=1);
 
+if (!isset($this) || !is_object($this) || !method_exists($this, 'registerModule') || !isset($this->id) || !is_string($this->id)) {
+    return;
+}
+
 $this->registerModule(
     'Whitelist comments',
     'Whitelists for comments moderation',
     'Jean-Christian Denis and Contributors',
     '1.7',
     [
-        'requires'    => [['core', '2.37']],
+        'requires'    => [['core', '2.39']],
         'permissions' => 'My',
         'priority'    => 200,
         'type'        => 'plugin',
