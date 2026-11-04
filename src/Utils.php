@@ -54,8 +54,8 @@ class Utils
             return;
         }
 
-        self::$unmoderated  = self::decode(My::settings()->get('unmoderated'));
-        self::$reserved     = self::decode(My::settings()->get('reserved'));
+        self::$unmoderated  = self::decode(My::settings()->getStr('unmoderated', false));
+        self::$reserved     = self::decode(My::settings()->getStr('reserved', false));
         self::$stopreserved = (bool) My::settings()->get('stopreserved');
 
         self::$init = true;
@@ -236,14 +236,14 @@ class Utils
         $users = [];
         while ($rs->fetch()) {
             $name = App::users()->getUserCN(
-                $rs->f('user_id'),
-                $rs->f('user_name'),
-                $rs->f('user_firstname'),
-                $rs->f('user_displayname')
+                $rs->strField('user_id'),
+                $rs->strField('user_name'),
+                $rs->strField('user_firstname'),
+                $rs->strField('user_displayname')
             );
             $users[] = [
                 'name'  => $name,
-                'email' => $rs->f('user_email'),
+                'email' => $rs->strField('user_email'),
             ];
         }
 
@@ -287,8 +287,8 @@ class Utils
         $users = [];
         while ($rs->fetch()) {
             $users[] = [
-                'name'  => $rs->f('comment_author'),
-                'email' => $rs->f('comment_email'),
+                'name'  => $rs->strField('comment_author'),
+                'email' => $rs->strField('comment_email'),
             ];
         }
 
@@ -320,6 +320,6 @@ class Utils
     {
         $y = json_decode($x, true);
 
-        return is_array($y) ? $y : [];
+        return is_array($y) ? array_filter($y, is_string(...)) : [];
     }
 }

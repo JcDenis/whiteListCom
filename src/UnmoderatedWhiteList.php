@@ -70,8 +70,11 @@ class UnmoderatedWhiteList extends SpamFilter
         try {
             if (!empty($_POST['update_unmoderated'])) {
                 Utils::emptyUnmoderated();
-                foreach ($_POST['unmoderated'] as $email) {
-                    Utils::addUnmoderated($email);
+                $emails = is_array($_POST['unmoderated'] ?? null) ? $_POST['unmoderated'] : [];
+                foreach ($emails as $email) {
+                    if (is_string($email)) {
+                        Utils::addUnmoderated($email);
+                    }
                 }
                 Utils::commit();
                 Notices::addSuccessNotice(__('Unmoderated names have been successfully updated.'));

@@ -35,12 +35,12 @@ class Backend
             'FrontendSessionAfterSignup' => function (Cursor $cur)  {
                 Utils::addReserved(
                     App::users()->getUserCN(
-                        $cur->user_id,
-                        $cur->user_name,
-                        $cur->user_firstname,
-                        $cur->user_displayname
+                        is_string($user_id = $cur->getField('user_id')) ? $user_id : '',
+                        is_string($user_name = $cur->getField('user_name')) ? $user_name : null,
+                        is_string($user_firstname = $cur->getField('user_firstname')) ? $user_firstname : null,
+                        is_string($user_displayname = $cur->getField('user_displayname')) ? $user_displayname : null
                     ),
-                    $cur->user_email
+                    is_string($user_email = $cur->getField('user_email')) ? $user_email : ''
                 );
                 Utils::commit();
             },

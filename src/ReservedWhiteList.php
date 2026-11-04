@@ -74,8 +74,12 @@ class ReservedWhiteList extends SpamFilter
         try {
             if (!empty($_POST['update_reserved'])) {
                 Utils::emptyReserved();
-                foreach ($_POST['reserved'] as $i => $name) {
-                    Utils::addReserved($name, $_POST['reserved_email'][$i]);
+                $names  = is_array($_POST['reserved'] ?? null) ? $_POST['reserved'] : [];
+                $emails = is_array($_POST['reserved_email'] ?? null) ? $_POST['reserved_email'] : [];
+                foreach ($names as $i => $name) {
+                    if (is_string($name) && is_string($emails[$i] ?? null)) {
+                        Utils::addReserved($name, $emails[$i]);
+                    }
                 }
                 Utils::setStopReserved(!empty($_POST['reserved_stop']));
                 Utils::commit();
