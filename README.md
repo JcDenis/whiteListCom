@@ -38,5 +38,6 @@ Note: User must write a comment before able to be added to the list.
 ## CONTRIBUTORS
 
 * Jean-Christian Denis (author)
+* Claude (AI assistant by Anthropic)
 
 You are welcome to contribute to this code.
