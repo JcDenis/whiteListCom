@@ -109,39 +109,75 @@ class Utils
      *
      * @return  null|bool   The reserved state
      */
+    /**
+     * Check if a name is reserved.
+     *
+     * Names are compared whatever the case and the spaces, emails whatever the case.
+     *
+     * @return  null|bool   null if the name is reserved to this email, true if reserved to another email, false if not reserved
+     */
     public static function isReserved(string $author, string $email): ?bool
     {
         self::init();
 
-        if (!isset(self::$reserved[$author])) {
-            return false;
-        } elseif (self::$reserved[$author] != $email) {
-            return true;
+        $key = self::nameKey($author);
+        foreach (self::$reserved as $name => $reserved_email) {
+            if (self::nameKey((string) $name) === $key) {
+                return strcasecmp($reserved_email, trim($email)) === 0 ? null : true;
+            }
         }
 
-        return null;
+        return false;
     }
 
     /**
-     * Add a reserved user.
-     *
-     * You must do a Utils::commit() to save this change
-     *
-     * @param   string  $author     The author
-     * @param   string  $email      The email
+     * Check if an email is linked to a reserved name, but with another name.
      */
+    public static function isReservedEmailWithOtherName(string $author, string $email): bool
+    {
+        self::init();
+
+        $key = self::nameKey($author);
+        foreach (self::$reserved as $name => $reserved_email) {
+            if (strcasecmp($reserved_email, trim($email)) === 0 && self::nameKey((string) $name) !== $key) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    /**
+     * Get reserved names.
+     *
+     * @return  array<int|string, string>   The names/emails
+     */
+    public static function getReserved(): array
+    {
+        self::init();
+
+        return self::$reserved;
+    }
+
+    /**
+     * Normalize a name to compare it.
+     */
+    public static function nameKey(string $name): string
+    {
+        return mb_strtolower(trim((string) preg_replace('/\s+/u', ' ', $name)));
+    }
+
     public static function addReserved(string $author, string $email): void
     {
         self::init();
 
-        self::$reserved[$author] = $email;
+        $author = trim((string) preg_replace('/\s+/u', ' ', $author));
+        $email  = trim($email);
+        if ($author !== '' && $email !== '') {
+            self::$reserved[$author] = $email;
+        }
     }
 
-    /**
-     * Clean reserved names list.
-     *
-     * You must do a Utils::commit() to save this change
-     */
     public static function emptyReserved(): void
     {
         self::init();
@@ -186,7 +222,14 @@ class Utils
     {
         self::init();
 
-        return in_array($email, self::$unmoderated);
+        $email = trim($email);
+        foreach (self::$unmoderated as $unmoderated) {
+            if (strcasecmp($unmoderated, $email) === 0) {
+                return $email !== '';
+            }
+        }
+
+        return false;
     }
 
     /**
@@ -200,7 +243,8 @@ class Utils
     {
         self::init();
 
-        if (!in_array($email, self::$unmoderated)) {
+        $email = trim($email);
+        if ($email !== '' && !self::isUnmoderated($email)) {
             self::$unmoderated[] = $email;
         }
     }
@@ -276,6 +320,8 @@ class Utils
             )
             ->where('blog_id = ' . $sql->quote(App::blog()->id()))
             ->and('comment_trackback = 0')
+            // Refused or junk comments (like a usurper) are not listed
+            ->and('comment_status <> ' . App::status()->comment()::JUNK)
             ->and("comment_email != ''")
             ->group('comment_email, comment_author') // Added author to fix postgreSql
             ->select();

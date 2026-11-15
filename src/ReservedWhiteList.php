@@ -9,9 +9,12 @@ use Dotclear\Core\Backend\Notices;
 use Dotclear\Helper\Html\Form\Caption;
 use Dotclear\Helper\Html\Form\Checkbox;
 use Dotclear\Helper\Html\Form\Div;
+use Dotclear\Helper\Html\Form\Email;
 use Dotclear\Helper\Html\Form\Form;
 use Dotclear\Helper\Html\Form\Hidden;
+use Dotclear\Helper\Html\Form\Input;
 use Dotclear\Helper\Html\Form\Label;
+use Dotclear\Helper\Html\Form\Note;
 use Dotclear\Helper\Html\Form\Para;
 use Dotclear\Helper\Html\Form\Submit;
 use Dotclear\Helper\Html\Form\Table;
@@ -69,8 +72,6 @@ class ReservedWhiteList extends SpamFilter
 
     public function gui(string $url): string
     {
-        $comments = [];
-
         try {
             if (!empty($_POST['update_reserved'])) {
                 Utils::emptyReserved();
@@ -81,20 +82,44 @@ class ReservedWhiteList extends SpamFilter
                         Utils::addReserved($name, $emails[$i]);
                     }
                 }
+                // New reserved name
+                $new_name  = is_string($_POST['reserved_new_name'] ?? null) ? trim($_POST['reserved_new_name']) : '';
+                $new_email = is_string($_POST['reserved_new_email'] ?? null) ? trim($_POST['reserved_new_email']) : '';
+                if ($new_name !== '' || $new_email !== '') {
+                    if ($new_name === '' || !filter_var($new_email, FILTER_VALIDATE_EMAIL)) {
+                        throw new Exception(__('A new reserved name needs a name and a valid email.'));
+                    }
+                    Utils::addReserved($new_name, $new_email);
+                }
                 Utils::setStopReserved(!empty($_POST['reserved_stop']));
                 Utils::commit();
                 Notices::addSuccessNotice(__('Reserved names have been successfully updated.'));
                 Http::redirect($url);
             }
+        } catch (Exception $e) {
+            App::error()->add($e->getMessage());
+        }
 
-            $comments = Utils::getCommentsUsers();
+        // Reserved names, then entries writers, then comments authors (each name once)
+        $users = [];
+        foreach (Utils::getReserved() as $name => $email) {
+            $users[Utils::nameKey((string) $name)] = ['name' => (string) $name, 'email' => $email];
+        }
+        try {
+            foreach ([...Utils::getPostsUsers(), ...Utils::getCommentsUsers()] as $user) {
+                $key = Utils::nameKey($user['name']);
+                if ($key !== '' && $user['email'] !== '' && !isset($users[$key])) {
+                    $users[$key] = $user;
+                }
+            }
         } catch (Exception $e) {
             App::error()->add($e->getMessage());
         }
 
         $rows = [];
-        foreach ($comments as $user) {
+        foreach ($users as $user) {
             $checked = null === Utils::isReserved($user['name'], $user['email']);
+            $i       = count($rows) + 1;
 
             $rows[] = (new Tr())
                 ->class('line')
@@ -102,14 +127,14 @@ class ReservedWhiteList extends SpamFilter
                     (new Td())
                         ->class('nowrap')
                         ->items([
-                            (new Checkbox(['reserved[' . (count($rows) + 1) . ']'], $checked))
+                            (new Checkbox(['reserved[' . $i . ']', 'reserved_' . $i], $checked))
                                 ->value($user['name'])
-                                ->label(new label($user['name'], Label::IL_FT)),
-                            new Hidden(['reserved_email[' . (count($rows) + 1) . ']'], $user['email']),
+                                ->label(new label(Html::escapeHTML($user['name']), Label::IL_FT)),
+                            new Hidden(['reserved_email[' . $i . ']'], $user['email']),
                         ]),
                     (new Td())
                         ->class(['maximal','nowrap'])
-                        ->text($user['email'])
+                        ->text(Html::escapeHTML($user['email']))
                 ]);
         }
 
@@ -122,7 +147,7 @@ class ReservedWhiteList extends SpamFilter
                     ->class('table-outer')
                     ->items([
                         (new Table())
-                            ->caption(new Caption(__('Comments authors list') ))
+                            ->caption(new Caption(__('Reserved names, entries and comments authors') ))
                             ->thead((new Thead())
                                 ->rows([(new Tr())
                                     ->cols([
@@ -135,10 +160,30 @@ class ReservedWhiteList extends SpamFilter
                     ]),
                 (new Para())
                     ->items([
+                        (new Input('reserved_new_name'))
+                            ->size(30)
+                            ->maxlength(255)
+                            ->label(new Label(__('Reserve a new name:'), Label::OL_TF)),
+                    ]),
+                (new Para())
+                    ->items([
+                        (new Email('reserved_new_email'))
+                            ->size(30)
+                            ->maxlength(255)
+                            ->label(new Label(__('With email:'), Label::OL_TF)),
+                    ]),
+                (new Note())
+                    ->class('form-note')
+                    ->text(__('Names are compared whatever the case and the spaces.')),
+                (new Para())
+                    ->items([
                         (new Checkbox('reserved_stop', Utils::stopReserved()))
                             ->value(1)
                             ->label(new label(__('Stop comment submission instead of mark it as spam'), Label::IL_FT)),
                     ]),
+                (new Note())
+                    ->class('form-note')
+                    ->text(__('If checked (default), the visitor is told that the name is reserved and the comment is not saved. Otherwise the comment is saved as spam and the visitor is told, as for any spam, that it will be published after validation.')),
                 (new Para())
                     ->items([
                         App::nonce()->formNonce(),

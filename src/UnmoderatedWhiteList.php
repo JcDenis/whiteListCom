@@ -11,6 +11,7 @@ use Dotclear\Helper\Html\Form\Checkbox;
 use Dotclear\Helper\Html\Form\Div;
 use Dotclear\Helper\Html\Form\Form;
 use Dotclear\Helper\Html\Form\Label;
+use Dotclear\Helper\Html\Form\Note;
 use Dotclear\Helper\Html\Form\Para;
 use Dotclear\Helper\Html\Form\Submit;
 use Dotclear\Helper\Html\Form\Table;
@@ -48,8 +49,12 @@ class UnmoderatedWhiteList extends SpamFilter
      */
     public function isSpam(string $type, ?string $author, ?string $email, ?string $site, ?string $ip, ?string $content, ?int $post_id, string &$status): ?bool
     {
+        // Email can not be verified: an author using the email of a reserved name with another name,
+        // or a reserved name with another email, is not trusted (whatever the filters order)
         if ($type == 'comment'
             && Utils::isUnmoderated((string) $email)
+            && Utils::isReserved((string) $author, (string) $email) !== true
+            && !Utils::isReservedEmailWithOtherName((string) $author, (string) $email)
         ) {
             $status = $this->name;
 
@@ -98,11 +103,11 @@ class UnmoderatedWhiteList extends SpamFilter
                         ->items([
                             (new Checkbox(['unmoderated[]'], $checked))
                                 ->value($user['email'])
-                                ->label(new label($user['name'], Label::IL_FT)),
+                                ->label(new label(Html::escapeHTML($user['name']), Label::IL_FT)),
                         ]),
                     (new Td())
                         ->class('nowrap')
-                        ->text($user['email'])
+                        ->text(Html::escapeHTML($user['email']))
                 ]);
         }
         foreach ($comments as $user) {
@@ -115,11 +120,11 @@ class UnmoderatedWhiteList extends SpamFilter
                         ->items([
                             (new Checkbox(['unmoderated[]'], $checked))
                                 ->value($user['email'])
-                                ->label(new label($user['name'], Label::IL_FT)),
+                                ->label(new label(Html::escapeHTML($user['name']), Label::IL_FT)),
                         ]),
                     (new Td())
                         ->class('nowrap')
-                        ->text($user['email'])
+                        ->text(Html::escapeHTML($user['email']))
                 ]);
         }
 
@@ -128,6 +133,7 @@ class UnmoderatedWhiteList extends SpamFilter
             ->action($url)
             ->fields([
                 (new Text('p',__('Check the users who can make comments without being moderated.'))),
+                (new Note())->class('form-note')->text(__('The email of a comment can not be verified: use reserved names to protect the names of these users.')),
                 (new Div())
                     ->class('one-box')
                     ->items([
