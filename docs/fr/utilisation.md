@@ -64,6 +64,6 @@ Pour changer l'ordre, glissez les lignes de la liste, puis enregistrez.
 
 ## Bon à savoir
 
-* Les deux listes sont faites à partir des commentaires déjà reçus : une personne doit avoir écrit un commentaire avant de pouvoir être ajoutée.
+* Les listes sont faites à partir des commentaires déjà reçus (et, pour « Auteurs non modérés », des auteurs de billets) : un visiteur doit avoir écrit un commentaire avant de pouvoir être ajouté.
 * Si une personne a écrit sous plusieurs noms ou plusieurs adresses, elle apparaît une fois par couple nom et adresse.
 * Les listes sont propres à chaque blog.
