@@ -29,7 +29,9 @@ Required Dotclear and PHP versions: see `_define.php`.
 
 ## Pitfalls
 
-* None recorded yet: add here the traps met while working on the module.
+* Reserved names are compared whatever the case and the spaces, emails whatever the case (`Utils::nameKey()`).
+* Comment emails are not verified: the unmoderated filter also checks reserved names itself, so it does not depend on the antispam filters order.
+* Junk comments are not listed in the forms (a refused usurper must not appear).
 
 ## Testing
 
