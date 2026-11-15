@@ -1,3 +1,9 @@
+whiteListCom 1.9 - 2026.11.15
+===========================================================
+* Add Claude to contributors
+* Replace Dotaddict links by Dotclear repository
+* [docs] Add a user guide in French, with screenshots
+
 whiteListCom 1.8 - 2026.11.05
 ===========================================================
 * Bump Dotclear from 2.37 to 2.39
