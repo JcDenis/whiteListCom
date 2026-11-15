@@ -1,3 +1,8 @@
+whiteListCom 1.10 - 2026.11.15
+===========================================================
+* [fix] Reserve names of writers or any name, compare names without case and spaces, unmoderated filter checks reserved names, junk comments not listed, explain modes
+* [lang] Missing translations and typos
+
 whiteListCom 1.9 - 2026.11.15
 ===========================================================
 * [docs] Add a user guide in French, with screenshots
