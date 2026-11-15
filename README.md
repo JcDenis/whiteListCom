@@ -12,6 +12,8 @@ __whiteListCom__ is a plugin for the open-source web publishing software called 
 
 > Set up a list of users which can publish comments without validation and a list of reserved names (pair of nickname / email ).
 
+A [user guide in French](https://github.com/JcDenis/whiteListCom/blob/master/docs/fr/utilisation.md) is available.
+
 ## REQUIREMENTS
 
 * Dotclear 2.39
@@ -30,6 +32,7 @@ Note: User must write a comment before able to be added to the list.
 
 ## LINKS
 
+* [User guide (in French)](https://github.com/JcDenis/whiteListCom/blob/master/docs/fr/utilisation.md)
 * [License](https://github.com/JcDenis/whiteListCom/blob/master/LICENSE)
 * [Packages & details](https://github.com/JcDenis/whiteListCom/releases) (or on [Repository](https://dotclear.org/plugin/detail/whiteListCom))
 * [Sources & contributions](https://github.com/JcDenis/whiteListCom)
